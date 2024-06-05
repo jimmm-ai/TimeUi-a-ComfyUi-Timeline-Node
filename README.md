@@ -46,3 +46,72 @@ I am not very familiar with common GitHub practices, so if someone has experienc
 I believe these nodes can bridge complex node setups and a full web UI, making it easier for less experienced users to get started before moving on to more advanced solutions. This idea came from using workflows by various developers over the last two months.
 
 Feel free to contact me! Don't hesitate to reach out and tell me if I am doing something wrong with this platform's habits. Let's make something amazing together!
+
+-------------
+
+## Work in Progress Roadmap for TimeUI: A ComfyUI Timeline Node System
+
+### Introduction
+The goal of the TimeUI project is to create an intuitive, user-friendly timeline node system for ComfyUI. This system will streamline the process of creating animations, allowing users to effortlessly add, delete, or rearrange nodes. Below is a detailed roadmap based on feedback and discussions with the community.
+
+### Phase 1: Initial Development and Core Features
+
+#### Milestone 1: Basic Timeline Functionality
+- **Create Node System**: Develop the basic structure of the timeline node system.
+- **Timeframe Integration**: Enable integration of timeframe values into other nodes.
+- **UI/UX Design**: Focus on creating a user-friendly interface with drag-and-drop functionality.
+- **Image Upload and Management**: Implement features for uploading images directly into nodes or attaching other "upload image" nodes.
+
+#### Milestone 2: Customization and Settings
+- **Row Settings**: Allow customization of each row in the timeline, including visibility toggles for image masks and other settings.
+- **Node Independence**: Ensure nodes can work independently or with external nodes.
+
+#### Milestone 3: Time Format and Duration
+- **Time Format Options**: Provide options to change the time format and animation duration in frames or seconds.
+- **Timeline Ruler Update**: Update the timeline ruler to display the number of frames or seconds each image occupies.
+
+#### Milestone 4: Bezier Curve Feature
+- **Bezier Curve Button**: Add a button to view the Bezier curve result of the current timeline.
+- **Design and Integration**: Continue designing and integrating the Bezier curve feature.
+
+### Phase 2: Advanced Features and Community Collaboration
+
+#### Milestone 5: Community Feedback and Testing
+- **Gather Feedback**: Collect feedback from the community to identify areas of improvement.
+- **Testing**: Conduct thorough testing to ensure stability and usability.
+
+#### Milestone 6: Workflow Examples and Documentation
+- **Example Workflows**: Create and share example workflows demonstrating how to use the timeline node system.
+- **Documentation**: Develop comprehensive documentation to assist users in understanding and utilizing the system.
+
+### Phase 3: Extended Functionality and Enhancements
+
+#### Milestone 7: Integration with Other Workflows
+- **AnimateDiff Workflows**: Integrate the timeline node system with AnimateDiff workflows.
+
+#### Milestone 8: Settings Integration and CNet Weight Integration
+- **Toggle Settings**: Enable settings like IP adapter, Image Negative, Attn Mask, Clip vision, Mask, and more.
+- **Settings Integration**: Integrate these settings directly into the timeline node system for seamless customization.
+- **CNet Weight Integration**: Explore adding features like CNet weight integration based on community demand.
+
+#### Milestone 9: Global Feature Implementation
+- **Global Settings**: Transition from setting configurations for each image to global settings applicable to the entire timeline.
+- **Advanced Customization**: Enhance the system with advanced customization options.
+
+### Phase 4: Finalization and Release
+
+#### Milestone 10: Final Tweaks and Optimization
+- **Optimization**: Optimize the node system for performance and efficiency.
+- **Final Testing**: Conduct final rounds of testing to ensure all features are functioning as expected.
+
+#### Milestone 11: Official Release
+- **Release Preparation**: Prepare for the official release of the TimeUI system.
+- **Launch**: Launch the TimeUI system and make it available for the community.
+
+### Ongoing Collaboration and Maintenance
+
+- **Community Support**: Continue to engage with the community for feedback and support.
+- **Regular Updates**: Provide regular updates and enhancements based on user feedback and emerging needs.
+
+### Conclusion
+The TimeUI project aims to simplify the animation creation process within ComfyUI, making it accessible and efficient for all users. Through collaborative efforts and continuous improvement, we can create a powerful tool that meets the diverse needs of the community.
