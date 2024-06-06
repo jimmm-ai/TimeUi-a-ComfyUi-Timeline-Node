@@ -3,7 +3,8 @@
 ## Warning
 
 
-** 06 JUNE 2024 : The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea.**
+06 JUNE 2024 : The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea. I am still looking for developers to contribute to the project. I will push some very early code for the final node later today.
+
 
 
 ## Introduction
