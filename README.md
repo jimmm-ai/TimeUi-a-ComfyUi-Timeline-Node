@@ -1,5 +1,11 @@
 # TimeUi a ComfyUI Timeline Node System
 
+## Warning
+
+
+** 06 JUNE 2024 : The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea.**
+
+
 ## Introduction
 
 Hi everyone,
