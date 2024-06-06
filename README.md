@@ -1,10 +1,38 @@
 # TimeUi a ComfyUI Timeline Node System
 
+
+## 06 JUNE 2024 : BuildLog #1
+
 ## Warning
 
+The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea. I am still looking for developers to contribute to the project. I just pushed a very early code for the final node.
 
-06 JUNE 2024 : The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea. I am still looking for developers to contribute to the project. I will push some very early code for the final node later today.
+### Steps Completed
 
+1. **Implemented the Widget on Top of the Node**:
+   - Developed the initial interface for the timeline node system.
+   - Implemented basic functionality to add, remove, and rearrange image rows in the timeline. I used the "draggablelist.js" library already in the ComfyUI core.
+   - Added HTML, CSS, and JS code to create the presentation video demonstrating the project idea.
+
+2. **Began Development of the Timeline**:
+   - Started the implementation of the timeline feature.
+   - Currently, the timeline does not function as intended; users can interact with the interface but image uploads do not update their positions within the list of image rows. To preview the image after upload, I used the "imagePreview.js" library already in the ComfyUI core.
+
+### Needs and Future Development
+
+1. **Image Position Update**:
+   - Need to implement functionality to update the position of images within the list of image rows when they are rearranged. I used the "draggablelist.js" library already in the ComfyUI core.
+
+2. **Dynamic Node Height**:
+   - Develop the node to dynamically adjust its height based on the content. Currently, adding too many rows causes them to overflow outside the node. Need to find a solution that adapts the height of the node to its content.
+
+3. **General Development Assistance**:
+   - Seeking developers with experience in ComfyUI node development to collaborate on this project.
+   - Particularly need help with JavaScript and Python integration for a fully functional node system.
+
+4. **Feedback and Contributions**:
+   - Looking for feedback on the current implementation and suggestions for improvement.
+   - Open to contributions from the community to enhance the functionality and usability of the timeline node system.
 
 
 ## Introduction
@@ -53,6 +81,9 @@ I am not very familiar with common GitHub practices, so if someone has experienc
 I believe these nodes can bridge complex node setups and a full web UI, making it easier for less experienced users to get started before moving on to more advanced solutions. This idea came from using workflows by various developers over the last two months.
 
 Feel free to contact me! Don't hesitate to reach out and tell me if I am doing something wrong with this platform's habits. Let's make something amazing together!
+
+- **Email**: [contact@jimmm.ai](mailto:contact@jimmm.ai)
+- **Twitter**: [@Jimmm_ai](https://x.com/Jimmm_ai)
 
 -------------
 
@@ -122,3 +153,5 @@ The goal of the TimeUI project is to create an intuitive, user-friendly timeline
 
 ### Conclusion
 The TimeUI project aims to simplify the animation creation process within ComfyUI, making it accessible and efficient for all users. Through collaborative efforts and continuous improvement, we can create a powerful tool that meets the diverse needs of the community.
+
+MIT License
