@@ -28,6 +28,8 @@ class TimelineUI:
         return {
             "required": {
                 "model": ("MODEL", {}),
+            },
+            "optional": {
                 "ipadapter_preset": (presets, {
                     "default": "LIGHT - SD1.5 only (low strength)"
                 }),
@@ -71,9 +73,9 @@ class TimelineUI:
     RETURN_NAMES = ("model",)
 
     FUNCTION = "handle_timeline"
-    CATEGORY = "utils/TimelineUI"
+    CATEGORY = "animation_timeline"
 
-    def handle_timeline(self, model=None):
+    def handle_timeline(self, model=None, ipadapter_preset: str="", video_width: int=0, video_height: int=0, interpolation_mode: str="", number_animation_frames: int=0, frames_per_second: int=0, time_format: str=""):
         """ Handle lack of required dependencies here because all modules have to be imported by comfyui before finding them """
         dependencies = load_dependencies(node_dependencies, location="handle_timeline")
         if dependencies is None:
@@ -83,3 +85,6 @@ class TimelineUI:
 
     def IS_CHANGED(id):
         return float("NaN")
+    
+    def onExecute(self):
+        pass

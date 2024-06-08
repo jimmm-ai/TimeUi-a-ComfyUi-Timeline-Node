@@ -10,12 +10,12 @@ document.head.appendChild(style);
 class TimelineUI extends LiteGraph.LGraphNode {
   constructor() {
     super("TimelineUI");
+    this.title = "TimelineUI";
     this.color = LGraphCanvas.node_colors.black.groupcolor;
     this.bgcolor = LGraphCanvas.node_colors.black.groupcolor;
     this.groupcolor = LGraphCanvas.node_colors.black.groupcolor;
 
-    // this.addInput("model", "MODEL");
-    // this.addInput("ipadapter_preset", "string");
+    this.addInput("model", "MODEL");
     this.addOutput("model", "MODEL");
 
     // Set default size
@@ -37,7 +37,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
   }
 
   addWidgets() {
-    ComfyWidgets.MODEL(this, "model", {}, app);
     ComfyWidgets.COMBO(this, "ipadapter_preset", [
       ["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"],
       { default: "LIGHT - SD1.5 only (low strength)" },
@@ -262,6 +261,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
   }
 }
 
-LiteGraph.registerNodeType("utils/TimelineUI", TimelineUI);
-TimelineUI.category = "utils/TimelineUI";
+LiteGraph.registerNodeType("animation_timeline/TimelineUI", TimelineUI);
+// TimelineUI.category = "animation_timeline/TimelineUI";
 console.log("my_custom_extension.js was executed!");
