@@ -1,29 +1,84 @@
+from .dependency_loader import load_dependencies
+from server import PromptServer
+
+
+node_dependencies = {
+    "ComfyUI_IPAdapter_plus": ["IPAdapterAdvanced", "IPAdapterUnifiedLoader"],
+    "ComfyUI-KJNodes": ["CreateFadeMaskAdvanced"],
+}
+
+
 class TimelineUI:
     def __init__(self):
         pass
 
     @classmethod
     def INPUT_TYPES(s):
+        # Attempting to collect the presets from IPAdapter Plus but has a default if import fails due to node loading issues
+        presets = [
+            'LIGHT - SD1.5 only (low strength)',
+            'STANDARD (medium strength)',
+            'VIT-G (medium strength)',
+            'PLUS (high strength)',
+            'PLUS FACE (portraits)',
+            'FULL FACE - SD1.5 only (portraits stronger)'
+        ]
+
         return {
             "required": {
                 "model": ("MODEL", {}),
+                "ipadapter_preset": (presets, {
+                    "default": "LIGHT - SD1.5 only (low strength)"
+                }),
+                "video_width": ("INT", {
+                    "default": 512,
+                    "min": 0,
+                    "max": 10000,
+                    "step": 1
+                }),
+                "video_height": ("INT", {
+                    "default": 512,
+                    "min": 0,
+                    "max": 10000,
+                    "step": 1
+                }),
+                "interpolation_mode": (["Linear", "Ease_in", "Ease_out", "Ease_in_out"], {
+                    "default": "Linear"
+                }),
+                "number_animation_frames": ("INT", {
+                    "default": 96,
+                    "min": 8,
+                    "max": 12000,
+                    "step": 12
+                }),
+                "frames_per_second": ("INT", {
+                    "default": 12,
+                    "min": 8,
+                    "max": 60,
+                    "step": 8
+                }),
+                "time_format": (["Frames", "Seconds"], {
+                    "default": "Frames"
+                }),
+            },
+            "hidden": {
+                "id": "UNIQUE_ID",
             }
         }
 
     RETURN_TYPES = ("MODEL",)
-    RETURN_NAMES = ("Model",)
+    RETURN_NAMES = ("model",)
 
     FUNCTION = "handle_timeline"
-    CATEGORY = "TimelineUI"
+    CATEGORY = "utils/TimelineUI"
 
     def handle_timeline(self, model=None):
-        pass
+        """ Handle lack of required dependencies here because all modules have to be imported by comfyui before finding them """
+        dependencies = load_dependencies(node_dependencies, location="handle_timeline")
+        if dependencies is None:
+            return None
 
-NODE_CLASS_MAPPINGS = {
-    "TimelineUI": TimelineUI,
-}
+        IPAdapterAdvanced, _, CreateFadeMaskAdvanced = dependencies
 
-# A dictionary that contains the friendly/humanly readable titles for the nodes
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "TimelineUI": "Timeline UI",
-}
+    def IS_CHANGED(id):
+        return float("NaN")
