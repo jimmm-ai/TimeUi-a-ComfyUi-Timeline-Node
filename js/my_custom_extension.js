@@ -39,6 +39,9 @@ class TimelineUI extends LiteGraph.LGraphNode {
         this.addWidgets();
 
         // Create and append the images container
+        if (this.htmlElement) {
+            this.htmlElement.innerHTML = '';
+        }
         this.htmlElement = this.createImagesContainer();
         document.body.appendChild(this.htmlElement);
 
@@ -47,6 +50,9 @@ class TimelineUI extends LiteGraph.LGraphNode {
         this.setupEventListeners();
         this.initializeSortable();
         this.initializeDragAndResize();
+
+        console.log("TimelineUI - I was constructed");
+        console.log(`TimelineUI > ctr - size = ${this.size}`);
     }
 
     addWidgets() {
@@ -54,7 +60,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
         ComfyWidgets.FLOAT(this, "video_width", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
         ComfyWidgets.FLOAT(this, "video_height", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
         ComfyWidgets.COMBO(this, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
-        ComfyWidgets.FLOAT(this, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }], app);
+        ComfyWidgets.FLOAT(this, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 1 }], app);
         ComfyWidgets.FLOAT(this, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
 
         // Time format COMBO widget with the specified structure
@@ -477,26 +483,14 @@ class TimelineUI extends LiteGraph.LGraphNode {
     configure(data) {
         super.configure(data);
         this.properties = data.properties ? { ...data.properties } : {};
-        // Clear the existing HTML element if any
-        if (this.htmlElement) {
-            this.htmlElement.remove();
-        }
-        // Recreate the image container and other elements as they are not serializable
-        this.htmlElement = this.createImagesContainer();
-        document.body.appendChild(this.htmlElement);
+        console.log(`timelineUI > configure - starting with ${this.htmlElement.querySelectorAll(".timeline-row").length || 0} rows`);
+        console.log(`timelineUI > configure - size = ${this.size}`);
 
         // Restore state from saved data
         const savedRows = data.rows || 1;
-        for (let i = 0; i < savedRows; i++) {
+        for (let i = 0; i < savedRows - 1; i++) {
             this.addImageRow();
         }
-
-        this.setupEventListeners();
-        this.initializeSortable();
-        this.initializeDragAndResize();
-
-        // Update frame info for all handlers
-        this.updateAllHandlersFrameInfo();
     }
 }
 
