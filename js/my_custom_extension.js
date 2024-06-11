@@ -9,6 +9,9 @@ document.head.appendChild(style);
 
 class TimelineUI extends LiteGraph.LGraphNode {
     constructor() {
+        /**
+         * This is called when a node is created AND when a reload occurs, so don't do this stuff twice
+        */
         super("TimelineUI");
         this.title = "TimelineUI";
         this.color = LGraphCanvas.node_colors.black.groupcolor;
@@ -50,9 +53,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
         this.setupEventListeners();
         this.initializeSortable();
         this.initializeDragAndResize();
-
-        console.log("TimelineUI - I was constructed");
-        console.log(`TimelineUI > ctr - size = ${this.size}`);
     }
 
     addWidgets() {
@@ -483,8 +483,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
     configure(data) {
         super.configure(data);
         this.properties = data.properties ? { ...data.properties } : {};
-        console.log(`timelineUI > configure - starting with ${this.htmlElement.querySelectorAll(".timeline-row").length || 0} rows`);
-        console.log(`timelineUI > configure - size = ${this.size}`);
 
         // Restore state from saved data
         const savedRows = data.rows || 1;
