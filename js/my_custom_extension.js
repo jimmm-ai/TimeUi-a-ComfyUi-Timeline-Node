@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 import './Sortable.min.js'; // Include the local Sortable.min.js
-import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES } from './svg-constants.js';
+import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES, SVG_ZOOM_OUT, SVG_ZOOM_IN } from './svg-constants.js';
 import { style } from "./styles.js";
 
 // Add CSS for the node
@@ -22,7 +22,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
         this.addOutput("model", "MODEL");
 
         // Set default size (initial height based on one row)
-        this.baseHeight = 260; // Base height for the node excluding rows
+        this.baseHeight = 292; // Base height for the node excluding rows
         this.rowHeight = 100; // Height of each row
         this.size = [900, this.baseHeight + this.rowHeight];
         this.resizable = true;
@@ -64,7 +64,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
         ComfyWidgets.FLOAT(this, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
 
         // Time format COMBO widget with the specified structure
-        ComfyWidgets.COMBO(this, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
+        // ComfyWidgets.COMBO(this, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
 
         // Bind onWidgetChange function to widget change events
         this.widgets.forEach(widget => {
@@ -96,11 +96,15 @@ class TimelineUI extends LiteGraph.LGraphNode {
         const container = document.createElement("div");
         container.id = "images-rows-container";
         container.className = "timeline-container";
-
+    
+        // Call GlobalSettings to create and append the global settings container
+        const globalSettingsContainer = this.createGlobalSettings();
+        container.appendChild(globalSettingsContainer);
+    
         // Append the time ruler container inside the main container
         this.timeRulerContainer = this.createTimeRuler();
         container.appendChild(this.timeRulerContainer);
-
+    
         this.addDOMWidget("custom-html", "html", container, {
             getValue: () => container.innerHTML,
             setValue: (value) => {
@@ -109,6 +113,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
         });
         return container;
     }
+    
 
     createTimeRuler() {
         const timeRulerContainer = document.createElement("div");
@@ -141,45 +146,154 @@ class TimelineUI extends LiteGraph.LGraphNode {
         return timeRulerContainer;
     }
 
+    createGlobalSettings() {
+        const globalSettingsContainer = document.createElement("div");
+        globalSettingsContainer.id = "global-settings-container";
+        globalSettingsContainer.className = "global-settings-container";
+    
+        // Create a parent div for both toggles
+        const togglesContainer = document.createElement("div");
+        togglesContainer.className = "toggles-container";
+    
+        // Create a parent div for the Time Format toggle
+        const timeFormatToggleContainer = document.createElement("div");
+        timeFormatToggleContainer.className = "toggle-input-container";
+    
+        // Time Format toggle switch
+        const timeFormatToggle = document.createElement("div");
+        timeFormatToggle.className = "toggle-container";
+    
+        const timeFormatLabel = document.createElement("span");
+        timeFormatLabel.className = "toggle-label";
+        timeFormatLabel.textContent = "Time Format";
+    
+        const timeFormatWrapper = document.createElement("label");
+        timeFormatWrapper.className = "switch";
+    
+        const timeFormatInput = document.createElement("input");
+        timeFormatInput.type = "checkbox";
+        timeFormatInput.className = "toggle-input";
+    
+        const timeFormatSlider = document.createElement("span");
+        timeFormatSlider.className = "slider round";
+        timeFormatSlider.setAttribute("data-on", "Seconds");
+        timeFormatSlider.setAttribute("data-off", "Frames");
+    
+        timeFormatWrapper.appendChild(timeFormatInput);
+        timeFormatWrapper.appendChild(timeFormatSlider);
+    
+        timeFormatToggle.appendChild(timeFormatLabel);
+        timeFormatToggle.appendChild(timeFormatWrapper);
+    
+        // Append the Time Format toggle to its container
+        timeFormatToggleContainer.appendChild(timeFormatToggle);
+    
+        // Create a parent div for the Loop toggle
+        const loopToggleContainer = document.createElement("div");
+        loopToggleContainer.className = "toggle-input-container";
+    
+        // Loop toggle switch
+        const loopToggle = document.createElement("div");
+        loopToggle.className = "toggle-container";
+    
+        const loopLabel = document.createElement("span");
+        loopLabel.className = "toggle-label";
+        loopLabel.textContent = "Loop Animation";
+    
+        const loopWrapper = document.createElement("label");
+        loopWrapper.className = "switch";
+    
+        const loopInput = document.createElement("input");
+        loopInput.type = "checkbox";
+        loopInput.className = "toggle-input";
+    
+        const loopSlider = document.createElement("span");
+        loopSlider.className = "slider round";
+        loopSlider.setAttribute("data-on", "Yes");
+        loopSlider.setAttribute("data-off", "No");
+    
+        loopWrapper.appendChild(loopInput);
+        loopWrapper.appendChild(loopSlider);
+    
+        loopToggle.appendChild(loopLabel);
+        loopToggle.appendChild(loopWrapper);
+    
+        // Append the loop toggle to its container
+        loopToggleContainer.appendChild(loopToggle);
+    
+        // Append both toggle containers to the main toggles container
+        togglesContainer.appendChild(timeFormatToggleContainer);
+        togglesContainer.appendChild(loopToggleContainer);
+    
+        // Create a parent div for the SVG and range input
+        const settingsInputContainer = document.createElement("div");
+        settingsInputContainer.className = "settingsinput";
+    
+        // Add content to the settings input container
+        const sigMin = document.createElement("span");
+        sigMin.innerHTML = SVG_ZOOM_OUT;
+    
+        const arrangeInput = document.createElement("input");
+        arrangeInput.type = "range";
+        arrangeInput.className = "range-input";
+        arrangeInput.min = "0";
+        arrangeInput.max = "100";
+        arrangeInput.value = "50";
+    
+        const sigMax = document.createElement("span");
+        sigMax.innerHTML = SVG_ZOOM_IN;
+    
+        // Append the SVGs and range input to the settings input container
+        settingsInputContainer.appendChild(sigMin);
+        settingsInputContainer.appendChild(arrangeInput);
+        settingsInputContainer.appendChild(sigMax);
+    
+        // Append the toggles container and settings input container to the global settings container
+        globalSettingsContainer.appendChild(togglesContainer);
+        globalSettingsContainer.appendChild(settingsInputContainer);
+    
+        return globalSettingsContainer;
+    }
+    
+    
+
     updateTimeRuler(timeRuler) {
-      console.log('Updating time ruler with properties:', this.properties);
-      const numberOfFrames = this.properties.number_animation_frames || 96;
-      const framesPerSecond = this.properties.frames_per_second || 12;
-      const timeFormat = this.properties.time_format;
-  
-      console.log('Time Format:', timeFormat); // Debugging output
-  
-      const totalMarkers = timeFormat === "Seconds" ? Math.ceil(numberOfFrames / framesPerSecond) * 10 : numberOfFrames;
-      timeRuler.innerHTML = '';
-  
-      for (let i = 0; i <= totalMarkers; i++) {
-          const timeMarker = document.createElement("div");
-          timeMarker.className = "time-marker";
-          timeMarker.style.left = `${(i / totalMarkers) * 100}%`;
-  
-          if (i % 10 === 0) {
-              timeMarker.classList.add("big-tick");
-              timeMarker.innerHTML = `<span>${timeFormat === "Seconds" ? i / 10 : i} ${timeFormat === "Seconds" ? 's' : ''}</span>`;
-          } else if (i % 5 === 0) {
-              timeMarker.classList.add("medium-tick");
-          } else {
-              timeMarker.classList.add("small-tick");
-          }
-  
-          timeRuler.appendChild(timeMarker);
-      }
-  
-      // Add the total number of frames as the last marker only if the time format is "Frames"
-      if (timeFormat === "Frames") {
-          const totalFramesMarker = document.createElement("div");
-          totalFramesMarker.className = "time-marker big-tick";
-          totalFramesMarker.style.left = `100%`;
-          totalFramesMarker.innerHTML = `<span>${numberOfFrames}</span>`;
-          timeRuler.appendChild(totalFramesMarker);
-      }
-  }
-  
-  
+        console.log('Updating time ruler with properties:', this.properties);
+        const numberOfFrames = this.properties.number_animation_frames || 96;
+        const framesPerSecond = this.properties.frames_per_second || 12;
+        const timeFormat = this.properties.time_format;
+
+        console.log('Time Format:', timeFormat); // Debugging output
+
+        const totalMarkers = timeFormat === "Seconds" ? Math.ceil(numberOfFrames / framesPerSecond) * 10 : numberOfFrames;
+        timeRuler.innerHTML = '';
+
+        for (let i = 0; i <= totalMarkers; i++) {
+            const timeMarker = document.createElement("div");
+            timeMarker.className = "time-marker";
+            timeMarker.style.left = `${(i / totalMarkers) * 100}%`;
+
+            if (i % 10 === 0) {
+                timeMarker.classList.add("big-tick");
+                timeMarker.innerHTML = `<span>${timeFormat === "Seconds" ? i / 10 : i} ${timeFormat === "Seconds" ? 's' : ''}</span>`;
+            } else if (i % 5 === 0) {
+                timeMarker.classList.add("medium-tick");
+            } else {
+                timeMarker.classList.add("small-tick");
+            }
+
+            timeRuler.appendChild(timeMarker);
+        }
+
+        // Add the total number of frames as the last marker only if the time format is "Frames"
+        if (timeFormat === "Frames") {
+            const totalFramesMarker = document.createElement("div");
+            totalFramesMarker.className = "time-marker big-tick";
+            totalFramesMarker.style.left = `100%`;
+            totalFramesMarker.innerHTML = `<span>${numberOfFrames}</span>`;
+            timeRuler.appendChild(totalFramesMarker);
+        }
+    }
 
     setupEventListeners() {
         this.htmlElement.addEventListener("click", (event) => {
@@ -265,10 +379,12 @@ class TimelineUI extends LiteGraph.LGraphNode {
                                <span class="frame-info"></span>
                            </div>
                        </div>
-                       <div class="handler-buttons">
+                    
+                        <div class="handler-buttons">
                            <button class="btn btn-sm add-timeframe">${SVG_ADD_TIMEFRAME}</button>
                            <button class="btn btn-sm remove-timeframe">${SVG_REMOVE_TIMEFRAME}</button>
                        </div>
+                    
                    </div>
                    <div class="resize-handle right-handle"></div>
                </div>
@@ -306,8 +422,14 @@ class TimelineUI extends LiteGraph.LGraphNode {
         Sortable.create(this.htmlElement, {
             animation: 150,
             handle: ".rearrange-handle",
-            onEnd: () => {
-                this.renumberImageRows();
+            filter: ".time-ruler-container", // Exclude the time ruler container from being sorted
+            onEnd: (evt) => {
+                // Prevent the time ruler from being sorted
+                if (evt.item.classList.contains('time-ruler-container')) {
+                    evt.from.insertBefore(evt.item, evt.from.children[evt.oldIndex]);
+                } else {
+                    this.renumberImageRows();
+                }
             },
         });
     }
@@ -458,7 +580,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
 
     onAdded() {
         // Set default size (initial height based on one row)
-        this.baseHeight = 260; // Base height for the node excluding rows
+        this.baseHeight = 292; // Base height for the node excluding rows
         this.rowHeight = 100; // Height of each row
         this.size = [900, this.baseHeight + this.rowHeight];
         this.resizable = true;
