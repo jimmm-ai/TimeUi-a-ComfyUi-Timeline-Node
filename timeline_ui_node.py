@@ -1,6 +1,4 @@
 from .dependency_loader import load_dependencies
-from server import PromptServer
-from aiohttp import web
 
 
 node_dependencies = {
@@ -63,9 +61,6 @@ class TimelineUI:
                 "time_format": (["Frames", "Seconds"], {
                     "default": "Frames"
                 }),
-            },
-            "hidden": {
-                "id": "UNIQUE_ID",
             }
         }
 

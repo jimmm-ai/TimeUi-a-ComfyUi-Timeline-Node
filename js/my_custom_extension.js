@@ -15,7 +15,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
     this.bgcolor = LGraphCanvas.node_colors.black.groupcolor;
     this.groupcolor = LGraphCanvas.node_colors.black.groupcolor;
 
-    this.feeds = {};
+    this.image_timelines = {};
 
     this.addInput("model", "MODEL");
     this.addOutput("model", "MODEL");
@@ -244,7 +244,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
         const uploadContainer = event.target.closest(".image-upload");
         const timelineHandler = event.target.closest(".timeline-handler");
         const rowHTML = event.target.closest(".timeline-row");
-        this.feeds[`image_id-${rowHTML.id}`] = {imgSrc: img.src, timelineHandler};
+        this.image_timelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
         uploadContainer.innerHTML = '';
         uploadContainer.appendChild(img);
       };
@@ -259,26 +259,19 @@ class TimelineUI extends LiteGraph.LGraphNode {
   }
 
   sendDataToBackend() {
-    let data = {};
+    let data = {imageData: []};
 
-    Object.keys(this.feeds).forEach(([key, item]) => {
-        const boundingRect = item.timelineHandler.getBoundingClientRect();
-        data[key] = {imgSrc: item.imgSrc, start: boundingRect.left, end: boundingRect.right};
+    Object.keys(this.image_timelines).forEach(([key, item]) => {
+      const boundingRect = item.timelineHandler.getBoundingClientRect();
+      data.imageData.push({rowID: key, imgSrc: item.imgSrc, start: boundingRect.left, end: boundingRect.right});
     });
 
-    fetch("/api/timeline_data", {  // Replace with your backend endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(responseData => {
-        console.log('Data sent successfully:', responseData);
-    })
-    .catch(error => {
-        console.error('Error sending data:', error);
+    api.fetchApi("/api/timeline_data", {  // Replace with your backend endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
     });
   }
 
