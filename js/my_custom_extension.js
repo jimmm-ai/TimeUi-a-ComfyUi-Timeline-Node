@@ -9,8 +9,9 @@ document.head.appendChild(style);
 
 class TimelineUI extends LiteGraph.LGraphNode {
   constructor() {
-    super("TimelineUI");
-    this.title = "TimelineUI";
+    super("jimmm.ai.TimelineUI");
+    this.title = "jimmm.ai.TimelineUI";
+    this.category = "anim_timeline";
     this.color = LGraphCanvas.node_colors.black.groupcolor;
     this.bgcolor = LGraphCanvas.node_colors.black.groupcolor;
     this.groupcolor = LGraphCanvas.node_colors.black.groupcolor;
@@ -43,12 +44,12 @@ class TimelineUI extends LiteGraph.LGraphNode {
       ["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"],
       { default: "LIGHT - SD1.5 only (low strength)" },
     ]);
-    ComfyWidgets.FLOAT(this, "video_width", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-    ComfyWidgets.FLOAT(this, "video_height", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-    ComfyWidgets.COMBO(this, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
+    ComfyWidgets.FLOAT(this, "video_width",             ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+    ComfyWidgets.FLOAT(this, "video_height",            ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+    ComfyWidgets.COMBO(this, "interpolation_mode",      [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }], app);
     ComfyWidgets.FLOAT(this, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }], app);
-    ComfyWidgets.FLOAT(this, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 8 }], app);
-    ComfyWidgets.COMBO(this, "time_format", [["Frames", "Seconds"], { default: "Linear" }]);
+    ComfyWidgets.FLOAT(this, "frames_per_second",       ["INT", { default: 12, min: 8, max: 24, step: 8 }], app);
+    ComfyWidgets.COMBO(this, "time_format",             [["Frames", "Seconds"], { default: "Linear" }], app);
   }
 
   createImagesContainer() {
@@ -285,6 +286,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
   }
 }
 
-LiteGraph.registerNodeType("animation_timeline/TimelineUI", TimelineUI);
-// TimelineUI.category = "animation_timeline/TimelineUI";
+LiteGraph.registerNodeType("jimmm.ai.TimelineUI", TimelineUI);
+
 console.log("my_custom_extension.js was executed!");
