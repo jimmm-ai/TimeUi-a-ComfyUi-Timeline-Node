@@ -65,7 +65,7 @@ class TimelineUI:
             }
         }
 
-        return {}
+        return ret_types
 
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model",)
@@ -80,6 +80,11 @@ class TimelineUI:
             return None
 
         IPAdapterAdvanced, _, CreateFadeMaskAdvanced = dependencies
+
+        return {
+            "ui": {},
+            "result": (model,)
+        }
 
     def IS_CHANGED(id):
         return float("NaN")
