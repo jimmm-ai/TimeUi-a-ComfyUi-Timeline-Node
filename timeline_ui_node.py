@@ -24,7 +24,7 @@ class TimelineUI:
             'FULL FACE - SD1.5 only (portraits stronger)'
         ]
 
-        return {
+        ret_types = {
             "required": {
                 "model": ("MODEL", {}),
             },
@@ -64,6 +64,8 @@ class TimelineUI:
                 }),
             }
         }
+
+        return {}
 
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model",)

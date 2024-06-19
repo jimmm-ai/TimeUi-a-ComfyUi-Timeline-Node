@@ -7,11 +7,13 @@ import { style } from "./styles.js";
 // Add CSS for the node
 document.head.appendChild(style);
 
+const nodeName = "jimmm.ai.TimelineUI";
+
 class TimelineUI extends LiteGraph.LGraphNode {
   constructor() {
-    super("jimmm.ai.TimelineUI");
-    this.title = "jimmm.ai.TimelineUI";
-    this.category = "anim_timeline";
+    super(nodeName);
+    // this.title = nodeName;
+    this.comfyClass = nodeName;
     this.color = LGraphCanvas.node_colors.black.groupcolor;
     this.bgcolor = LGraphCanvas.node_colors.black.groupcolor;
     this.groupcolor = LGraphCanvas.node_colors.black.groupcolor;
@@ -37,6 +39,7 @@ class TimelineUI extends LiteGraph.LGraphNode {
     this.setupEventListeners();
     this.initializeSortable();
     this.initializeDragAndResize();
+    console.log(`jimmm.ai.timelineUI > ctor: I was run!`);
   }
 
   addWidgets() {
@@ -276,15 +279,28 @@ class TimelineUI extends LiteGraph.LGraphNode {
     });
   }
 
+  testBackend() {
+    api.fetchApi("/api/test", {});
+  }
+
   onExecute() {
     let inputData = this.getInputData(0);
     if (inputData !== undefined) {
       this.setOutputData(0, `Processed: ${inputData}`);
     }
 
-    this.sendDataToBackend();
+    this.testBackend();
+    // this.sendDataToBackend();
   }
 }
+
+const NODE_CLASS = TimelineUI;
+app.registerExtension({
+    name: "jimmm.ai.TimelineUI",
+    async beforeRegisterNodeDef(nodeType, nodeData, app) {
+        
+    },
+});
 
 LiteGraph.registerNodeType("jimmm.ai.TimelineUI", TimelineUI);
 

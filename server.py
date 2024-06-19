@@ -5,8 +5,15 @@ import base64
 
 routes = PromptServer.instance.routes
 
+@routes.post("/api/test")
+async def test(request):
+    print(f"TimelineUI: Hello from timeline_data api request!")
+
+    return web.json_response({})
+
 @routes.post("/api/timeline_data")
 async def timeline_data(request):
+    print(f"TimelineUI: Hello from timeline_data api request!")
     images = []
     try:
         post_data = await request.json()
