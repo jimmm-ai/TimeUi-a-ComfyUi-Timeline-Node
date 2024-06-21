@@ -4,42 +4,34 @@ import { ComfyWidgets } from "../../scripts/widgets.js";
 import './Sortable.min.js'; // Include the local Sortable.min.js
 import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from './svg-constants.js';
 import { style } from "./styles.js";
-import { create } from "./Sortable.min.js";
+// import { create } from "./Sortable.min.js";
+
+let image_timelines = {};
+let htmlElement;
 
 const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
 function addWidgets(node) {
-    node.addCustomWidget(ComfyWidgets.MODEL(node, "model", ["MODEL",], app).widget);
     node.addCustomWidget(ComfyWidgets.COMBO(node, "ipadapter_preset", [
       ["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"],
       { default: "LIGHT - SD1.5 only (low strength)" },
     ]));
-    node.addCustomWidget(ComfyWidgets.INT(node, "video_width",             ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app).widget);
-    node.addCustomWidget(ComfyWidgets.INT(node, "video_height",            ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app).widget);
+    node.addCustomWidget(ComfyWidgets.INT(node,   "video_width",             ["INT", { default: 512, min: 0, max: 10000, step: 1 }],                    app).widget);
+    node.addCustomWidget(ComfyWidgets.INT(node,   "video_height",            ["INT", { default: 512, min: 0, max: 10000, step: 1 }],                    app).widget);
     node.addCustomWidget(ComfyWidgets.COMBO(node, "interpolation_mode",      [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }], app).widget);
-    node.addCustomWidget(ComfyWidgets.INT(node, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }], app).widget);
-    node.addCustomWidget(ComfyWidgets.INT(node, "frames_per_second",       ["INT", { default: 12, min: 8, max: 24, step: 8 }], app).widget);
-    node.addCustomWidget(ComfyWidgets.COMBO(node, "time_format",             [["Frames", "Seconds"], { default: "Linear" }], app).widget);
+    node.addCustomWidget(ComfyWidgets.INT(node,   "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }],                    app).widget);
+    node.addCustomWidget(ComfyWidgets.INT(node,   "frames_per_second",       ["INT", { default: 12, min: 8, max: 24, step: 8 }],                        app).widget);
+    node.addCustomWidget(ComfyWidgets.COMBO(node, "time_format",             [["Frames", "Seconds"], { default: "Linear" }],                            app).widget);
 }
 
 function createImagesContainer() {
     const container = document.createElement("div");
     container.id = "images-rows-container";
     container.className = "timeline-container";
-    addDOMWidget("custom-html", "html", container, {
-      getValue: () => container.innerHTML,
-      setValue: (value) => {
-        container.innerHTML = value;
-      },
-    });
     return container;
 }
-
-let image_timelines = {};
-let htmlElement = createImagesContainer();
-document.body.appendChild(htmlElement);
 
 function setupEventListeners() {
     htmlElement.addEventListener("click", (event) => {
@@ -265,22 +257,39 @@ app.registerExtension({
     name: "jimmm.ai.TimelineUI",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
-            out("Hello there!");
+          nodeType.title = "Timeline UI";
+          nodeType.inputs = [
+            {
+              name: "model",
+              type: "MODEL",
+              label: "model"
+            },
+          ];
 
-            // Hijacking onNodeCreated
-            const orig_nodeCreated = nodeType.prototype.onNodeCreated;
-            nodeType.prototype.onNodeCreated = () => {
-                orig_nodeCreated();
-                // something else here
-                addWidgets(this);
-                this.onResize?.(this.size);
-            };
+          htmlElement = createImagesContainer();
+          document.body.appendChild(htmlElement);
 
-            // Hijacking onExecute
-            const orig_onExecuted = nodeType.prototype.onExecuted;
-            nodeType.prototype.onExecuted = (messageFromBackend) => {
-                orig_onExecuted?.apply(this);
-            };
+          // Hijacking onNodeCreated
+          const orig_nodeCreated = nodeType.prototype.onNodeCreated;
+          nodeType.prototype.onNodeCreated = function () {
+            const r = orig_nodeCreated ? orig_nodeCreated.apply(this, arguments) : undefined;
+            // something else here
+            addWidgets(this);
+            this.onResize?.(this.size);
+            addImageRow(); // Add the first row
+            setupEventListeners();
+            initializeSortable();
+            initializeDragAndResize();
+            console.log(`jimmm.ai.timelineUI > ctor: I was run!`);
+            
+            return r;
+          };
+
+          // Hijacking onExecute
+          const orig_onExecuted = nodeType.prototype.onExecuted;
+          nodeType.prototype.onExecuted = (messageFromBackend) => {
+            orig_onExecuted?.apply(this);
+          };
         }
     },
 });
