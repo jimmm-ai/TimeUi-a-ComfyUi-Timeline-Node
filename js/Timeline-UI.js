@@ -1,5 +1,4 @@
 import { app } from "../../scripts/app.js";
-import { $el } from "../../scripts/ui.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 import './Sortable.min.js'; // Include the local Sortable.min.js
 import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from './svg-constants.js';
@@ -7,12 +6,13 @@ import { style } from "./styles.js";
 // import { create } from "./Sortable.min.js";
 
 let image_timelines = {};
-let htmlElement;
+const SIZE = Symbol();
 
 const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
+// don't need to add these widgets if they're defined on the backend
 function addWidgets(node) {
     node.addCustomWidget(ComfyWidgets.COMBO(node, "ipadapter_preset", [
       ["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"],
@@ -24,35 +24,42 @@ function addWidgets(node) {
     node.addCustomWidget(ComfyWidgets.INT(node,   "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }],                    app).widget);
     node.addCustomWidget(ComfyWidgets.INT(node,   "frames_per_second",       ["INT", { default: 12, min: 8, max: 24, step: 8 }],                        app).widget);
     node.addCustomWidget(ComfyWidgets.COMBO(node, "time_format",             [["Frames", "Seconds"], { default: "Linear" }],                            app).widget);
+    
 }
 
-function createImagesContainer() {
-    const container = document.createElement("div");
-    container.id = "images-rows-container";
-    container.className = "timeline-container";
-    return container;
+function createImagesContainer(node) {
+  const container = document.createElement("div");
+  container.id = "images-rows-container";
+  container.className = "timeline-container";
+  node.addDOMWidget("custom-html", "html", container, {
+    getValue: () => container.innerHTML,
+    setValue: (value) => {
+      container.innerHTML = value;
+    },
+  });
+  return container;
 }
 
-function setupEventListeners() {
-    htmlElement.addEventListener("click", (event) => {
+function setupEventListeners(node) {
+    node.htmlElement.addEventListener("click", (event) => {
         if (event.target.closest(".add-row")) {
           addImageRow();
         } else if (event.target.closest(".remove-row")) {
-          removeImageRow(event.target);
+          removeImageRow(node, event.target);
         } else if (event.target.closest(".image-input")) {
           event.target.closest(".image-input").addEventListener("change", (e) => handleImageUpload(e));
         }
     });
 }
 
-function addImageRow() {
+function addImageRow(node) {
     const newRow = document.createElement("section");
-    const currentIndex = htmlElement.querySelectorAll(".timeline-row").length + 1;
+    const currentIndex = node.htmlElement.querySelectorAll(".timeline-row").length + 1;
     newRow.className = "timeline-row";
     newRow.id = `timeline-row-${currentIndex}`;
     newRow.innerHTML = generateRowHTML(currentIndex);
-    htmlElement.appendChild(newRow);
-    initializeSortable(); // Re-initialize Sortable to include new row
+    node.htmlElement.appendChild(newRow);
+    initializeSortable(node); // Re-initialize Sortable to include new row
     initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
 }
 
@@ -94,8 +101,8 @@ function removeImageRow(button) {
     }
 }
 
-function renumberImageRows() {
-    const rows = htmlElement.querySelectorAll(".timeline-row");
+function renumberImageRows(node) {
+    const rows = node.htmlElement.querySelectorAll(".timeline-row");
     rows.forEach((row, index) => {
       row.id = `timeline-row-${index + 1}`;
       const textHook = row.querySelector(".image-number");
@@ -105,8 +112,8 @@ function renumberImageRows() {
     });
 }
 
-function initializeSortable() {
-    Sortable.create(htmlElement, {
+function initializeSortable(node) {
+    Sortable.create(node.htmlElement, {
       animation: 150,
       handle: ".rearrange-handle",
       onEnd: () => {
@@ -252,44 +259,52 @@ function onExecute() {
     // this.sendDataToBackend();
 }
 
+// domWidget is just a custom widget type that 
 
-app.registerExtension({
-    name: "jimmm.ai.TimelineUI",
-    async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
-          nodeType.title = "Timeline UI";
-          nodeType.inputs = [
-            {
-              name: "model",
-              type: "MODEL",
-              label: "model"
-            },
-          ];
 
-          htmlElement = createImagesContainer();
-          document.body.appendChild(htmlElement);
+const node = {
+  name: "jimmm.ai.TimelineUI",
+  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+      if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
+        nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
+        nodeType.title = "Timeline UI";
+        nodeType.inputs = [
+          {
+            name: "model",
+            type: "MODEL",
+            label: "model"
+          },
+        ];
 
-          // Hijacking onNodeCreated
-          const orig_nodeCreated = nodeType.prototype.onNodeCreated;
-          nodeType.prototype.onNodeCreated = function () {
-            const r = orig_nodeCreated ? orig_nodeCreated.apply(this, arguments) : undefined;
-            // something else here
-            addWidgets(this);
-            this.onResize?.(this.size);
-            addImageRow(); // Add the first row
-            setupEventListeners();
-            initializeSortable();
-            initializeDragAndResize();
-            console.log(`jimmm.ai.timelineUI > ctor: I was run!`);
-            
-            return r;
-          };
+        // Hijacking onNodeCreated
+        const orig_nodeCreated = nodeType.prototype.onNodeCreated;
+        nodeType.prototype.onNodeCreated = function () {
+          out(Object.keys(this));
+          const r = orig_nodeCreated ? orig_nodeCreated.apply(this, arguments) : undefined;
+          
+          // Create the html body
+          this.htmlElement = createImagesContainer(this);
+          document.body.appendChild(this.htmlElement);
 
-          // Hijacking onExecute
-          const orig_onExecuted = nodeType.prototype.onExecuted;
-          nodeType.prototype.onExecuted = (messageFromBackend) => {
-            orig_onExecuted?.apply(this);
-          };
-        }
-    },
-});
+          this.onResize?.(this.size);
+          addImageRow(this); // Add the first row
+          setupEventListeners(this);
+          initializeSortable(this);
+          initializeDragAndResize();
+
+          out("onCreate was called!");
+
+          return r;
+        };
+
+        // Hijacking onExecute
+        const orig_onExecuted = nodeType.prototype.onExecuted;
+        nodeType.prototype.onExecuted = (messageFromBackend) => {
+          orig_onExecuted?.apply(this);
+        };
+      }
+  },
+};
+
+
+app.registerExtension(node);
