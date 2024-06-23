@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 import './Sortable.min.js'; // Include the local Sortable.min.js
-import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from './svg-constants.js';
+import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES } from './svg-constants.js';
 import { style } from "./styles.js";
 // import { create } from "./Sortable.min.js";
 
@@ -27,10 +27,141 @@ function addWidgets(node) {
     
 }
 
+function updateTimeRuler(node, timeRuler) {
+  console.log('Updating time ruler with properties:', node.properties);
+  const numberOfFrames = node.properties.number_animation_frames || 96;
+  const framesPerSecond = node.properties.frames_per_second || 12;
+  const timeFormat = node.properties.time_format;
+
+  // console.log('Time Format:', timeFormat); // Debugging output
+
+  const totalMarkers = timeFormat === "Seconds" ? Math.ceil(numberOfFrames / framesPerSecond) * 10 : numberOfFrames;
+  timeRuler.innerHTML = '';
+
+  for (let i = 0; i <= totalMarkers; i++) {
+    const timeMarker = document.createElement("div");
+    timeMarker.className = "time-marker";
+    timeMarker.style.left = `${(i / totalMarkers) * 100}%`;
+
+    if (i % 10 === 0) {
+        timeMarker.classList.add("big-tick");
+        timeMarker.innerHTML = `<span>${timeFormat === "Seconds" ? i / 10 : i} ${timeFormat === "Seconds" ? 's' : ''}</span>`;
+    }
+    else if (i % 5 === 0) {
+      timeMarker.classList.add("medium-tick");
+    }
+    else {
+      timeMarker.classList.add("small-tick");
+    }
+
+    timeRuler.appendChild(timeMarker);
+  }
+
+  // Add the total number of frames as the last marker only if the time format is "Frames"
+  if (timeFormat === "Frames") {
+    const totalFramesMarker = document.createElement("div");
+    totalFramesMarker.className = "time-marker big-tick";
+    totalFramesMarker.style.left = `100%`;
+    totalFramesMarker.innerHTML = `<span>${numberOfFrames}</span>`;
+    timeRuler.appendChild(totalFramesMarker);
+  }
+}
+
+function createTimeRuler(node) {
+  const timeRulerContainer = document.createElement("div");
+  timeRulerContainer.className = "time-ruler-container";
+
+  // Add the new button to the left of the time ruler
+  const newButton = document.createElement("button");
+  newButton.className = "btn new-function-button";
+  newButton.innerHTML = SVG_SHOW_CURVES; // You can replace this with SVG or any other content
+  // Add an event listener for the button
+  newButton.addEventListener("click", () => {
+    console.log("New function button clicked");
+    // Add your future function logic here
+  });
+  timeRulerContainer.appendChild(newButton);
+
+  const timeRuler = document.createElement("div");
+  timeRuler.className = "time-ruler";
+
+  // Initialize the time ruler with current properties
+  updateTimeRuler(node, timeRuler);
+
+  timeRulerContainer.appendChild(timeRuler);
+
+  // Add the rearrange handle to the right of the time ruler
+  const rearrangeHandle = document.createElement("div");
+  rearrangeHandle.className = "same-space-handle";
+  timeRulerContainer.appendChild(rearrangeHandle);
+
+  return timeRulerContainer;
+}
+
+function updateFrameInfo(node, handler) {
+  const timelineContainer = handler.closest(".timeline");
+  const totalWidth = timelineContainer.clientWidth;
+  const handlerWidth = handler.clientWidth;
+  const handlerLeft = handler.offsetLeft;
+
+  const framesPerPixel = node.properties.number_animation_frames / totalWidth;
+  const startFrame = Math.round(handlerLeft * framesPerPixel);
+  const endFrame = Math.round((handlerLeft + handlerWidth) * framesPerPixel);
+  const totalFrames = endFrame - startFrame;
+
+  const startSecond = (startFrame / node.properties.frames_per_second).toFixed(2);
+  const endSecond = (endFrame / node.properties.frames_per_second).toFixed(2);
+
+  const frameInfoElement = handler.querySelector('.frame-info');
+  const frameInfoInput = handler.querySelector('.frame-info-input');
+  const frameLabel = handler.querySelector('.frame-label');
+
+  if (frameInfoElement && frameInfoInput && frameLabel) {
+      frameInfoInput.value = node.properties.time_format === 'Seconds' ? `${(totalFrames / node.properties.frames_per_second).toFixed(2)}` : `${totalFrames}`;
+      frameLabel.textContent = node.properties.time_format === 'Seconds' ? ' seconds' : ' frames';
+      
+      if (node.properties.time_format === 'Seconds') {
+          frameInfoElement.textContent = `From ${startSecond}s to ${endSecond}s`;
+      } else {
+          frameInfoElement.textContent = `From ${startFrame} to ${endFrame} frames`;
+      }
+  }
+}
+
+function updateAllHandlersFrameInfo(node) {
+  const handlers = node.htmlElement.querySelectorAll(".timeline-handler");
+  handlers.forEach(handler => {
+      updateFrameInfo(node, handler);
+  });
+}
+
+function onWidgetChange(node, widget, value) {
+  console.log(`Widget changed: ${widget.name} = ${value}`);
+  node.properties[widget.name] = value;
+  console.log('Updated properties:', node.properties);
+
+  // Ensure the timeRulerContainer exists and has a time-ruler element
+  if (node.timeRulerContainer) {
+      const timeRuler = node.timeRulerContainer.querySelector('.time-ruler');
+      if (timeRuler) {
+          updateTimeRuler(node, timeRuler);
+          updateAllHandlersFrameInfo(node); // Update frame info for all handlers
+      } else {
+          console.error("Time ruler element not found!");
+      }
+  } else {
+      console.error("Time ruler container not found!");
+  }
+}
+
 function createImagesContainer(node) {
   const container = document.createElement("div");
   container.id = "images-rows-container";
   container.className = "timeline-container";
+
+  node.timeRulerContainer = createTimeRuler(node);
+  container.appendChild(node.timeRulerContainer);
+
   node.addDOMWidget("custom-html", "html", container, {
     getValue: () => container.innerHTML,
     setValue: (value) => {
@@ -59,8 +190,10 @@ function addImageRow(node) {
     newRow.id = `timeline-row-${currentIndex}`;
     newRow.innerHTML = generateRowHTML(currentIndex);
     node.htmlElement.appendChild(newRow);
+    updateNodeHeight(node);
     initializeSortable(node); // Re-initialize Sortable to include new row
     initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
+    updateFrameInfo(node, newRow.querySelector(".timeline-handler"));
 }
 
 function generateRowHTML(currentIndex) {
@@ -110,6 +243,11 @@ function renumberImageRows(node) {
         textHook.textContent = `IMAGE ${index + 1}`;
       }
     });
+}
+
+function updateNodeHeight(node) {
+  const rowCount = node.htmlElement.querySelectorAll(".timeline-row").length;
+  node.size[1] = node.baseHeight + node.rowHeight * rowCount;
 }
 
 function initializeSortable(node) {
@@ -266,7 +404,10 @@ const node = {
   name: "jimmm.ai.TimelineUI",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
       if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
+        // Bind addDOMWidget to nodeType
         nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
+        
+        // Set title and inputs
         nodeType.title = "Timeline UI";
         nodeType.inputs = [
           {
@@ -281,20 +422,37 @@ const node = {
         nodeType.prototype.onNodeCreated = function () {
           const r = orig_nodeCreated ? orig_nodeCreated.apply(this, arguments) : undefined;
 
+          // Set the size
+          this.baseHeight = 260; // Base height for the node excluding rows
+          this.rowHeight = 100; // Height of each row
           this.size = [900, 600];
           this.resizable = true;
+          // this.onResize?.(this.size);
+
+          // Set properties
+          this.properties = {
+            ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
+            video_width: 512,
+            video_height: 512,
+            interpolation_mode: "Linear",
+            number_animation_frames: 96,
+            frames_per_second: 12,
+            time_format: "Frames" // Default value for time_format
+          };
           
-          // Create the html body
+          // Use addDOMWidget to add a custom widget that supports custom html
           this.htmlElement = createImagesContainer(this);
           document.body.appendChild(this.htmlElement);
 
-          this.onResize?.(this.size);
-          addImageRow(this); // Add the first row
+          this.widgets.forEach(widget => {
+            // console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
+            widget.callback = onWidgetChange.bind(this, this, widget);
+          });
+
+          addImageRow(this);
           setupEventListeners(this);
           initializeSortable(this);
           initializeDragAndResize();
-
-          out("onCreate was called!");
 
           return r;
         };

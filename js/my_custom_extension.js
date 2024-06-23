@@ -10,51 +10,6 @@ document.head.appendChild(style);
 const nodeName = "jimmm.ai.TimelineUI";
 
 class TimelineUI extends LiteGraph.LGraphNode {
-<<<<<<< HEAD
-  constructor() {
-    super(nodeName);
-    // this.title = nodeName;
-    this.color = LGraphCanvas.node_colors.black.groupcolor;
-    this.bgcolor = LGraphCanvas.node_colors.black.groupcolor;
-    this.groupcolor = LGraphCanvas.node_colors.black.groupcolor;
-
-    this.image_timelines = {};
-
-    this.addInput("model", "MODEL");
-    this.addOutput("model", "MODEL");
-
-    // Set default size
-    this.size = [600, 800];
-    this.resizable = true;
-
-    // Add widgets using ComfyWidgets
-    this.addWidgets();
-
-    // Create and append the images container
-    this.htmlElement = this.createImagesContainer();
-    document.body.appendChild(this.htmlElement);
-
-    // Initialize
-    this.addImageRow(); // Add the first row
-    this.setupEventListeners();
-    this.initializeSortable();
-    this.initializeDragAndResize();
-    console.log(`jimmm.ai.timelineUI > ctor: I was run!`);
-  }
-
-  addWidgets() {
-    ComfyWidgets.COMBO(this, "ipadapter_preset", [
-      ["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"],
-      { default: "LIGHT - SD1.5 only (low strength)" },
-    ]);
-    ComfyWidgets.FLOAT(this, "video_width",             ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-    ComfyWidgets.FLOAT(this, "video_height",            ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-    ComfyWidgets.COMBO(this, "interpolation_mode",      [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }], app);
-    ComfyWidgets.FLOAT(this, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 12 }], app);
-    ComfyWidgets.FLOAT(this, "frames_per_second",       ["INT", { default: 12, min: 8, max: 24, step: 8 }], app);
-    ComfyWidgets.COMBO(this, "time_format",             [["Frames", "Seconds"], { default: "Linear" }], app);
-  }
-=======
     constructor() {
         /**
          * This is called when a node is created AND when a reload occurs, so don't do this stuff twice
@@ -67,7 +22,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
 
         this.addInput("model", "MODEL");
         this.addOutput("model", "MODEL");
->>>>>>> main
 
         // Set default size (initial height based on one row)
         this.baseHeight = 260; // Base height for the node excluding rows
@@ -290,25 +244,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
         this.updateFrameInfo(newRow.querySelector(".timeline-handler")); // Update frame info for the new row
     }
 
-<<<<<<< HEAD
-  handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.src = e.target.result;
-        img.className = "uploaded-image";
-
-        const uploadContainer = event.target.closest(".image-upload");
-        const timelineHandler = event.target.closest(".timeline-handler");
-        const rowHTML = event.target.closest(".timeline-row");
-        this.image_timelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
-        uploadContainer.innerHTML = '';
-        uploadContainer.appendChild(img);
-      };
-      reader.readAsDataURL(file);
-=======
     generateRowHTML(currentIndex) {
         return `
            <div class="timeline-controls">
@@ -342,7 +277,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
            </div>
            <div class="rearrange-handle"></div>
         `;
->>>>>>> main
     }
 
     removeImageRow(button) {
@@ -354,41 +288,6 @@ class TimelineUI extends LiteGraph.LGraphNode {
         }
     }
 
-<<<<<<< HEAD
-  sendDataToBackend() {
-    let data = {imageData: []};
-
-    Object.keys(this.image_timelines).forEach(([key, item]) => {
-      const boundingRect = item.timelineHandler.getBoundingClientRect();
-      data.imageData.push({rowID: key, imgSrc: item.imgSrc, start: boundingRect.left, end: boundingRect.right});
-    });
-
-    api.fetchApi("/api/timeline_data", {  // Replace with your backend endpoint
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-  }
-
-  testBackend() {
-    api.fetchApi("/api/test", {});
-  }
-
-  onExecute() {
-    let inputData = this.getInputData(0);
-    if (inputData !== undefined) {
-      this.setOutputData(0, `Processed: ${inputData}`);
-    }
-
-    this.testBackend();
-    // this.sendDataToBackend();
-  }
-}
-
-// LiteGraph.registerNodeType("jimmm.ai.TimelineUI", TimelineUI);
-=======
     renumberImageRows() {
         const rows = this.htmlElement.querySelectorAll(".timeline-row");
         rows.forEach((row, index) => {
@@ -596,4 +495,3 @@ class TimelineUI extends LiteGraph.LGraphNode {
 }
 
 LiteGraph.registerNodeType("animation_timeline/TimelineUI", TimelineUI);
->>>>>>> main
