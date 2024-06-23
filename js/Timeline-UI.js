@@ -43,7 +43,7 @@ function createImagesContainer(node) {
 function setupEventListeners(node) {
     node.htmlElement.addEventListener("click", (event) => {
         if (event.target.closest(".add-row")) {
-          addImageRow();
+          addImageRow(node);
         } else if (event.target.closest(".remove-row")) {
           removeImageRow(node, event.target);
         } else if (event.target.closest(".image-input")) {
@@ -93,11 +93,11 @@ function generateRowHTML(currentIndex) {
     `;
 }
 
-function removeImageRow(button) {
+function removeImageRow(node, button) {
     const row = button.closest(".timeline-row");
     if (row) {
       row.remove();
-      renumberImageRows();
+      renumberImageRows(node);
     }
 }
 
@@ -279,8 +279,10 @@ const node = {
         // Hijacking onNodeCreated
         const orig_nodeCreated = nodeType.prototype.onNodeCreated;
         nodeType.prototype.onNodeCreated = function () {
-          out(Object.keys(this));
           const r = orig_nodeCreated ? orig_nodeCreated.apply(this, arguments) : undefined;
+
+          this.size = [900, 600];
+          this.resizable = true;
           
           // Create the html body
           this.htmlElement = createImagesContainer(this);
