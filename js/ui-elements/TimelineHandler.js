@@ -1,4 +1,6 @@
 import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from "../utils/SVGConstants.js";
+import { updateFrameInfo } from "./TimeRuler.js";
+import { initializeDragAndResize } from "../utils/EventListeners.js";
 
 function addImageRow(nodeMgr) {
     const newRow = document.createElement("section");
@@ -7,8 +9,8 @@ function addImageRow(nodeMgr) {
     newRow.id = `timeline-row-${currentIndex}`;
     newRow.innerHTML = generateRowHTML(currentIndex);
     nodeMgr.htmlElement.appendChild(newRow);
-    updateNodeHeight(nodeMgr.node);
-    initializeSortable(nodeMgr.node); // Re-initialize Sortable to include new row
+    nodeMgr.updateNodeHeight();
+    nodeMgr.initializeSortable(); // Re-initialize Sortable to include new row
     initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
     updateFrameInfo(nodeMgr.node, newRow.querySelector(".timeline-handler"));
 }

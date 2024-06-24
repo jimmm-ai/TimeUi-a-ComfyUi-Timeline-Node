@@ -122,4 +122,4 @@ function timeRulerCallback(node) {
     }
 }
 
-  export { updateTimeRuler, createTimeRuler, timeRulerCallback };
+  export { updateTimeRuler, createTimeRuler, timeRulerCallback, updateFrameInfo };
