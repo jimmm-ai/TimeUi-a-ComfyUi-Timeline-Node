@@ -16,7 +16,6 @@ export class NodeManager {
         } = props;
 
         this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
-        this.node.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
         this.node.size = size;
         this.baseHeight = baseHeight;
         this.rowHeight = rowHeight;
@@ -28,7 +27,7 @@ export class NodeManager {
             time_format: "Frames" // Default value for time_format
         };
 
-        this.htmlElement = this.createImagesContainer();
+        // this.htmlElement = this.createImagesContainer(node);
     }
 
     /** Getters and Setters to alias node object passed to constructor */
@@ -53,17 +52,6 @@ export class NodeManager {
 
     get resizable() {return this.node.resizable;}
     set resizable(isResizable) {this.node.resizable = isResizable;}
-
-    set onNodeCreated(func) {
-        this.origOnNodeCreated = this.node.prototype.onNodeCreated;
-        this.node.prototype.onNodeCreated = function () {
-            const r = this.origOnNodeCreated ? this.origOnNodeCreated.apply(this.node, arguments) : undefined;
-
-            func();
-
-            return r;
-        }
-    }
 
     set onExecuted(func) {
         this.origOnExecuted = this.node.prototype.onExecuted;

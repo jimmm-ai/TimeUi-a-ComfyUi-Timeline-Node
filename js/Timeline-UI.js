@@ -1,6 +1,6 @@
 import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
-import { NodeManager } from "./NodeManager.js";
+import { NodeManager, out } from "./NodeManager.js";
 
 
 function sendDataToBackend(image_timelines) {
@@ -53,16 +53,27 @@ const node = {
           },
         ];
 
-        nodeMgr.onNodeCreated = function() {
+        const origOnNodeCreated = nodeType.prototype.onNodeCreated;
+        nodeType.prototype.onNodeCreated = function () {
+          const r = origOnNodeCreated ? origOnNodeCreated.apply(nodeType, arguments) : undefined;
+
+          nodeMgr.node = this;
+          out(`nodeType=${Object.keys(nodeType)}`);
+          out(`this=${Object.keys(this)}`);
+
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;
           nodeMgr.size = [900, 600];
           nodeMgr.resizable = true;
 
+          nodeMgr.htmlElement = nodeMgr.createImagesContainer();
+
           nodeMgr.addTimelineHandlerRow();
           nodeMgr.setupEventListeners();
           nodeMgr.initializeSortable();
           nodeMgr.initResizeListeners();
+
+          return r;
         }
 
         /* Bind addDOMWidget to nodeType
