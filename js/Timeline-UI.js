@@ -42,7 +42,7 @@ const node = {
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
       if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
         nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
-
+        
         let nodeMgr = new NodeManager(nodeType);
         nodeMgr.title = "Timeline UI";
         nodeMgr.inputs = [
@@ -57,21 +57,24 @@ const node = {
         nodeType.prototype.onNodeCreated = function () {
           const r = origOnNodeCreated ? origOnNodeCreated.apply(nodeType, arguments) : undefined;
 
-          nodeMgr.node = this;
-          out(`nodeType=${Object.keys(nodeType)}`);
-          out(`this=${Object.keys(this)}`);
+          const orgContext = nodeMgr.node;
+          nodeMgr.node = nodeType;
 
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;
           nodeMgr.size = [900, 600];
           nodeMgr.resizable = true;
 
-          nodeMgr.htmlElement = nodeMgr.createImagesContainer();
+          nodeMgr.createImagesContainer();
+
+          out(`nodeMgr.htmlElement=${nodeMgr.htmlElement}`);
 
           nodeMgr.addTimelineHandlerRow();
           nodeMgr.setupEventListeners();
           nodeMgr.initializeSortable();
           nodeMgr.initResizeListeners();
+
+          nodeMgr.node = orgContext;
 
           return r;
         }

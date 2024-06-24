@@ -1,14 +1,16 @@
-function addImageRow(node) {
+import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE } from "../utils/SVGConstants.js";
+
+function addImageRow(nodeMgr) {
     const newRow = document.createElement("section");
-    const currentIndex = node.htmlElement.querySelectorAll(".timeline-row").length + 1;
+    const currentIndex = nodeMgr.htmlElement.querySelectorAll(".timeline-row").length + 1;
     newRow.className = "timeline-row";
     newRow.id = `timeline-row-${currentIndex}`;
     newRow.innerHTML = generateRowHTML(currentIndex);
-    node.htmlElement.appendChild(newRow);
-    updateNodeHeight(node);
-    initializeSortable(node); // Re-initialize Sortable to include new row
+    nodeMgr.htmlElement.appendChild(newRow);
+    updateNodeHeight(nodeMgr.node);
+    initializeSortable(nodeMgr.node); // Re-initialize Sortable to include new row
     initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
-    updateFrameInfo(node, newRow.querySelector(".timeline-handler"));
+    updateFrameInfo(nodeMgr.node, newRow.querySelector(".timeline-handler"));
 }
 
 function renumberImageRows(node) {

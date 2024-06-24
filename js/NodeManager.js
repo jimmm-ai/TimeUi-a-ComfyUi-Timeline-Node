@@ -6,6 +6,25 @@ export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
+export function createImagesContainer(node, nodeMgr) {
+    const container = document.createElement("div");
+    container.id = "images-rows-container";
+    container.className = "timeline-container";
+  
+    nodeMgr.timeRulerContainer = createTimeRuler(node);
+    container.appendChild(nodeMgr.timeRulerContainer);
+  
+    let domWidget = node.prototype.addDOMWidget("custom-html", "html", container, {
+      getValue: () => container.innerHTML,
+      setValue: (value) => {
+        container.innerHTML = value;
+      },
+    });
+    domWidget.callback = timeRulerCallback.bind(node);
+
+    nodeMgr.htmlElement = container;
+}
+
 export class NodeManager {
     constructor(node, props={}) {
         // Destructuring props with default values
@@ -27,7 +46,7 @@ export class NodeManager {
             time_format: "Frames" // Default value for time_format
         };
 
-        // this.htmlElement = this.createImagesContainer(node);
+        this.htmlElement;
     }
 
     /** Getters and Setters to alias node object passed to constructor */
@@ -78,8 +97,9 @@ export class NodeManager {
           },
         });
         domWidget.callback = timeRulerCallback.bind(this.node);
-
-        return container;
+    
+        this.htmlElement = container;
+        out(`this.htmlElement=${this.htmlElement} container=${container}`);
     }
 
     handleImageUpload(event) {
@@ -103,7 +123,7 @@ export class NodeManager {
     }
 
     addTimelineHandlerRow() {
-        addImageRow(this.node);
+        addImageRow(this);
     }
 
     setupEventListeners() {
