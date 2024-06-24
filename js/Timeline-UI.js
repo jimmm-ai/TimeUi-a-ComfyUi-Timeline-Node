@@ -39,8 +39,6 @@ const node = {
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
       if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
         nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
-
-        out(`nodeType.addProperty=${nodeType.hasOwnProperty("addProperty")} nodeType.prototype.addProperty=${nodeType.prototype.hasOwnProperty("addProperty")}`);
         
         let nodeMgr = new NodeManager(nodeType);
         nodeMgr.title = "Timeline UI";
