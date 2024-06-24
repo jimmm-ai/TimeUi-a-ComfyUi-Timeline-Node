@@ -1,7 +1,7 @@
 import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
-import './Sortable.min.js'; // Include the local Sortable.min.js
-import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES } from './svg-constants.js';
+import './utils/Sortable.min.js'; // Include the local Sortable.min.js
+import { SVG_ADD_ROW, SVG_REMOVE_ROW, SVG_ADD_TIMEFRAME, SVG_REMOVE_TIMEFRAME, SVG_UPLOAD_IMAGE, SVG_SHOW_CURVES } from './utils/SVGConstants.js';
 import { style } from "./styles.js";
 
 // Add CSS for the node
