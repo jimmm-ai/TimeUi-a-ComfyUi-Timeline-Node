@@ -74,6 +74,8 @@ const node = {
           nodeMgr.initializeSortable();
           nodeMgr.initResizeListeners();
 
+          this.setDirtyCanvas(true);
+
           /** Reset nodeMgr.node to the original context saved earlier */
           nodeMgr.node = orgContext;
 
