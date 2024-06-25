@@ -1,6 +1,8 @@
 import { createTimeRuler, timeRulerCallback } from "./ui-elements/TimeRuler.js";
 import { addImageRow, renumberImageRows, removeImageRow } from "./ui-elements/TimelineHandler.js";
 import { initializeDragAndResize } from "./utils/EventListeners.js";
+import { app } from "../../scripts/app.js";
+import { ComfyWidgets } from "../../scripts/widgets.js";
 
 export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
@@ -27,26 +29,30 @@ export function createImagesContainer(node, nodeMgr) {
 
 export class NodeManager {
     constructor(node, props={}) {
-        // Destructuring props with default values
-        const {
-            size = [900, 600],
-            baseHeight = 260,
-            rowHeight = 100
-        } = props;
+      // Destructuring props with default values
+      const {
+          size = [900, 600],
+          baseHeight = 260,
+          rowHeight = 100
+      } = props;
+      
+      this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
+      this.node.size = size;
+      this.baseHeight = baseHeight;
+      this.rowHeight = rowHeight;
+      this.imageTimelines = {};
 
-        this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
-        this.node.size = size;
-        this.baseHeight = baseHeight;
-        this.rowHeight = rowHeight;
+      this.node.properties = {
+        ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
+        video_width: 512,
+        video_height: 512,
+        interpolation_mode: "Linear",
+        number_animation_frames: 96,
+        frames_per_second: 12,
+        time_format: "Frames" // Default value for time_format
+      };
 
-        this.imageTimelines = {};
-        this.node.properties = {
-            number_animation_frames: 96,
-            frames_per_second: 12,
-            time_format: "Frames" // Default value for time_format
-        };
-
-        this.htmlElement;
+      this.htmlElement;
     }
 
     /** Getters and Setters to alias node object passed to constructor */
@@ -82,6 +88,43 @@ export class NodeManager {
     }
 
     /** Logical Methods */
+    addWidgets() {
+      ComfyWidgets.COMBO(this.node.prototype, "ipadapter_preset", [["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"], { default: "LIGHT - SD1.5 only (low strength)" }]);
+      ComfyWidgets.FLOAT(this.node.prototype, "video_width", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+      ComfyWidgets.FLOAT(this.node.prototype, "video_height", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+      ComfyWidgets.COMBO(this.node.prototype, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
+      ComfyWidgets.FLOAT(this.node.prototype, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 1 }], app);
+      ComfyWidgets.FLOAT(this.node.prototype, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
+    
+      // Time format COMBO widget with the specified structure
+      ComfyWidgets.COMBO(this.node.prototype, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
+    
+      // Bind onWidgetChange function to widget change events
+      this.node.prototype.widgets.forEach(widget => {
+        console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
+        widget.callback = this.onWidgetChange.bind(widget, widget);
+      });
+    }
+
+    onWidgetChange(widget, value) {
+      console.log(`Widget changed: ${widget.name} = ${value}`);
+      this.node.properties[widget.name] = value;
+      console.log('Updated properties:', this.node.properties);
+
+      // Ensure the timeRulerContainer exists and has a time-ruler element
+      if (this.timeRulerContainer) {
+          const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
+          if (timeRuler) {
+              this.updateTimeRuler(timeRuler);
+              this.updateAllHandlersFrameInfo(); // Update frame info for all handlers
+          } else {
+              console.error("Time ruler element not found!");
+          }
+      } else {
+          console.error("Time ruler container not found!");
+      }
+    }
+
     createImagesContainer() {
         const container = document.createElement("div");
         container.id = "images-rows-container";
@@ -99,6 +142,7 @@ export class NodeManager {
         domWidget.callback = timeRulerCallback.bind(this.node);
     
         this.htmlElement = container;
+        document.body.appendChild(this.htmlElement);
         out(`this.htmlElement=${this.htmlElement} container=${container}`);
     }
 
@@ -123,7 +167,7 @@ export class NodeManager {
     }
 
     addTimelineHandlerRow() {
-        addImageRow(this);
+      addImageRow(this);
     }
 
     setupEventListeners() {

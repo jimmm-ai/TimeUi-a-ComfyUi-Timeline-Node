@@ -1,6 +1,7 @@
 import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
 import { NodeManager, out } from "./NodeManager.js";
+import { ComfyWidgets } from "../../scripts/widgets.js";
 
 
 function sendDataToBackend(image_timelines) {
@@ -39,10 +40,8 @@ const node = {
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
       if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
         nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
-        
-        let nodeMgr = new NodeManager(nodeType);
-        nodeMgr.title = "Timeline UI";
-        nodeMgr.inputs = [
+        nodeType.title = "Timeline UI";
+        nodeType.inputs = [
           {
             name: "model",
             type: "MODEL",
@@ -50,36 +49,39 @@ const node = {
           },
         ];
 
+        nodeType.size = [900, 600];
+        nodeType.resizable = true;
         const origOnNodeCreated = nodeType.prototype.onNodeCreated;
+
+        out(`this has "addWidget" = ${this.hasOwnProperty("addWidget")}`);
+        out(`nodeType has "addWidget" = ${nodeType.hasOwnProperty("addWidget")}`);
+        out(`nodeType.prototype has "addWidget" = ${nodeType.prototype.hasOwnProperty("addWidget")}`);
+
         nodeType.prototype.onNodeCreated = function () {
-          const r = origOnNodeCreated ? origOnNodeCreated.apply(this, arguments) : undefined;
-          out(`nodeType.addProperty=${nodeType.hasOwnProperty("addProperty")} nodeType.prototype.addProperty=${nodeType.prototype.hasOwnProperty("addProperty")}`);
+          origOnNodeCreated?.apply(this, arguments);
 
           /** Save the original nodeType context and set nodeMgr.node to the new nodeType context within onNodeCreated
-           * This is important because nodeType as context is different inside the onNodeCreated call than within beforeRegisterNodeDef
+           * This is importanat because nodeType as context is different inside the onNodeCreated call than within beforeRegisterNodeDef
            *  and the context for nodeType inside of onNodeCreated is required for addDOMWidget to work properly (called within nodeMgr.createImagesContainer()).
            * Thus, nodeMgr.node must be reset to match the required context so everything behind the scenes works properly.
           */
-          const orgContext = nodeMgr.node;
-          nodeMgr.node = nodeType;
+
+          out(`this has "addWidget" = ${this.hasOwnProperty("addWidget")}`);
+          out(`nodeType has "addWidget" = ${nodeType.hasOwnProperty("addWidget")}`);
+          out(`nodeType.prototype has "addWidget" = ${nodeType.prototype.hasOwnProperty("addWidget")}`);
+
+          let nodeMgr = new NodeManager(nodeType);
 
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;
-          nodeMgr.size = [900, 600];
-          nodeMgr.resizable = true;
 
+          nodeMgr.addWidgets();
           nodeMgr.createImagesContainer();
           nodeMgr.addTimelineHandlerRow();
           nodeMgr.setupEventListeners();
           nodeMgr.initializeSortable();
           nodeMgr.initResizeListeners();
 
-          this.setDirtyCanvas(true);
-
-          /** Reset nodeMgr.node to the original context saved earlier */
-          nodeMgr.node = orgContext;
-
-          return r;
         }
 
         /* Bind addDOMWidget to nodeType

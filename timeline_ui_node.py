@@ -65,7 +65,7 @@ class TimelineUI:
             }
         }
 
-        return ret_types
+        return {}
 
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model",)
