@@ -8,25 +8,6 @@ export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
-export function createImagesContainer(node, nodeMgr) {
-    const container = document.createElement("div");
-    container.id = "images-rows-container";
-    container.className = "timeline-container";
-  
-    nodeMgr.timeRulerContainer = createTimeRuler(node);
-    container.appendChild(nodeMgr.timeRulerContainer);
-  
-    let domWidget = node.prototype.addDOMWidget("custom-html", "html", container, {
-      getValue: () => container.innerHTML,
-      setValue: (value) => {
-        container.innerHTML = value;
-      },
-    });
-    domWidget.callback = timeRulerCallback.bind(node);
-
-    nodeMgr.htmlElement = container;
-}
-
 export class NodeManager {
     constructor(node, props={}) {
       // Destructuring props with default values
@@ -102,7 +83,7 @@ export class NodeManager {
       // Bind onWidgetChange function to widget change events
       this.node.prototype.widgets.forEach(widget => {
         console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
-        widget.callback = this.onWidgetChange.bind(widget, widget);
+        widget.callback = this.onWidgetChange.bind(widget, widget.value);
       });
     }
 
