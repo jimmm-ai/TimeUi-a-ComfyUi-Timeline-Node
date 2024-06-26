@@ -1,4 +1,5 @@
 import { app } from "../../scripts/app.js";
+import { $el } from "../../scripts/ui.js";
 import './utils/Sortable.min.js';
 import { NodeManager, out } from "./NodeManager.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
@@ -61,8 +62,9 @@ const node = {
            *  and the context for nodeType inside of onNodeCreated is required for addDOMWidget to work properly (called within nodeMgr.createImagesContainer()).
            * Thus, nodeMgr.node must be reset to match the required context so everything behind the scenes works properly.
           */
-          let nodeMgr = new NodeManager(nodeType);
-          out(`this=${Object.keys(this)}`);
+          let nodeMgr = new NodeManager(this);
+          out(`\nthis=${Object.keys(this)}\nthis.properties=${Object.keys(this.properties)}`);
+          out(`\nnodeData=${Object.keys(nodeData)}`);
 
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;

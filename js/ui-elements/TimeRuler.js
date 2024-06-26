@@ -38,7 +38,7 @@ function updateFrameInfo(nodeMgr, handler) {
   }
 
 function updateTimeRuler(nodeMgr, timeRuler) {
-    console.log('Updating time ruler with properties:', nodeMgr.node.properties);
+    // console.log('Updating time ruler with properties:', nodeMgr.node.properties);
     const numberOfFrames = nodeMgr.node.properties.number_animation_frames || 96;
     const framesPerSecond = nodeMgr.node.properties.frames_per_second || 12;
     const timeFormat = nodeMgr.node.properties.time_format;

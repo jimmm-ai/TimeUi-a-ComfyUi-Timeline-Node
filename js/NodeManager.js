@@ -2,6 +2,7 @@ import { createTimeRuler, timeRulerCallback } from "./ui-elements/TimeRuler.js";
 import { addImageRow, renumberImageRows, removeImageRow } from "./ui-elements/TimelineHandler.js";
 import { initializeDragAndResize } from "./utils/EventListeners.js";
 import { app } from "../../scripts/app.js";
+import { $el } from "../../scripts/ui.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 
 let docListenersAdded = false;
@@ -19,7 +20,7 @@ export class NodeManager {
           rowHeight = 100
       } = props;
       
-      this.node = node.prototype;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
+      this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
       this.node.size = size;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
@@ -75,7 +76,7 @@ export class NodeManager {
     
       // Bind onWidgetChange function to widget change events
       this.node.widgets.forEach(widget => {
-        console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
+        // console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
         widget.callback = this.onWidgetChange.bind(widget, widget.value);
       });
     }
@@ -100,24 +101,27 @@ export class NodeManager {
     }
 
     createImagesContainer() {
-        const container = document.createElement("div");
-        container.id = "images-rows-container";
-        container.className = "timeline-container";
+        // const container = document.createElement("div");
+        // container.id = "images-rows-container";
+        // container.className = "timeline-container";
+
+        const container = $el("div.timeline-container", { 
+          id: "images-rows-container" 
+        });
       
         this.timeRulerContainer = createTimeRuler(this);
         container.appendChild(this.timeRulerContainer);
       
-        let domWidget = this.node.addDOMWidget("custom-html", "html", container, {
+        /* let domWidget = this.node.addDOMWidget("custom-html", "html", container, {
           getValue: () => container.innerHTML,
           setValue: (value) => {
             container.innerHTML = value;
           },
         });
-        domWidget.callback = timeRulerCallback.bind(this.node);
+        */
     
         this.htmlElement = container;
         document.body.appendChild(this.htmlElement);
-        out(`this.htmlElement=${this.htmlElement} container=${container}`);
     }
 
     handleImageUpload(event) {
