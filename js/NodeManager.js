@@ -4,6 +4,8 @@ import { initializeDragAndResize } from "./utils/EventListeners.js";
 import { app } from "../../scripts/app.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 
+let docListenersAdded = false;
+
 export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
@@ -17,7 +19,7 @@ export class NodeManager {
           rowHeight = 100
       } = props;
       
-      this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
+      this.node = node.prototype;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
       this.node.size = size;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
@@ -59,29 +61,20 @@ export class NodeManager {
     get resizable() {return this.node.resizable;}
     set resizable(isResizable) {this.node.resizable = isResizable;}
 
-    set onExecuted(func) {
-        this.origOnExecuted = this.node.prototype.onExecuted;
-        this.node.prototype.onExecuted = function() {
-            this.origOnExecuted?.apply(this.node);
-
-            func();
-        }
-    }
-
     /** Logical Methods */
     addWidgets() {
-      ComfyWidgets.COMBO(this.node.prototype, "ipadapter_preset", [["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"], { default: "LIGHT - SD1.5 only (low strength)" }]);
-      ComfyWidgets.FLOAT(this.node.prototype, "video_width", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-      ComfyWidgets.FLOAT(this.node.prototype, "video_height", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
-      ComfyWidgets.COMBO(this.node.prototype, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
-      ComfyWidgets.FLOAT(this.node.prototype, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 1 }], app);
-      ComfyWidgets.FLOAT(this.node.prototype, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
+      ComfyWidgets.COMBO(this.node, "ipadapter_preset", [["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"], { default: "LIGHT - SD1.5 only (low strength)" }]);
+      ComfyWidgets.FLOAT(this.node, "video_width", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+      ComfyWidgets.FLOAT(this.node, "video_height", ["INT", { default: 512, min: 0, max: 10000, step: 1 }], app);
+      ComfyWidgets.COMBO(this.node, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
+      ComfyWidgets.FLOAT(this.node, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 1 }], app);
+      ComfyWidgets.FLOAT(this.node, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
     
       // Time format COMBO widget with the specified structure
-      ComfyWidgets.COMBO(this.node.prototype, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
+      ComfyWidgets.COMBO(this.node, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
     
       // Bind onWidgetChange function to widget change events
-      this.node.prototype.widgets.forEach(widget => {
+      this.node.widgets.forEach(widget => {
         console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
         widget.callback = this.onWidgetChange.bind(widget, widget.value);
       });
@@ -97,7 +90,7 @@ export class NodeManager {
           const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
           if (timeRuler) {
               this.updateTimeRuler(timeRuler);
-              this.updateAllHandlersFrameInfo(); // Update frame info for all handlers
+              updateAllHandlersFrameInfo(this); // Update frame info for all handlers
           } else {
               console.error("Time ruler element not found!");
           }
@@ -111,10 +104,10 @@ export class NodeManager {
         container.id = "images-rows-container";
         container.className = "timeline-container";
       
-        this.timeRulerContainer = createTimeRuler(this.node);
+        this.timeRulerContainer = createTimeRuler(this);
         container.appendChild(this.timeRulerContainer);
       
-        let domWidget = this.node.prototype.addDOMWidget("custom-html", "html", container, {
+        let domWidget = this.node.addDOMWidget("custom-html", "html", container, {
           getValue: () => container.innerHTML,
           setValue: (value) => {
             container.innerHTML = value;
@@ -154,9 +147,9 @@ export class NodeManager {
     setupEventListeners() {
         this.htmlElement.addEventListener("click", (event) => {
             if (event.target.closest(".add-row")) {
-              addImageRow(this.node);
+              addImageRow(this);
             } else if (event.target.closest(".remove-row")) {
-              removeImageRow(this.node, event.target);
+              removeImageRow(this, event.target);
             } else if (event.target.closest(".image-input")) {
               event.target.closest(".image-input").addEventListener("change", (e) => this.handleImageUpload(e));
             }
@@ -179,6 +172,10 @@ export class NodeManager {
     }
 
     initResizeListeners() {
-        initializeDragAndResize();
+      if (!docListenersAdded) {
+        initializeDragAndResize(this);
+        out("NodeManager.initResizeListeners was run!");
+      }
+      docListenersAdded = true;
     }
 }

@@ -62,6 +62,7 @@ const node = {
            * Thus, nodeMgr.node must be reset to match the required context so everything behind the scenes works properly.
           */
           let nodeMgr = new NodeManager(nodeType);
+          out(`this=${Object.keys(this)}`);
 
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;

@@ -12,11 +12,11 @@ function addImageRow(nodeMgr) {
     nodeMgr.updateNodeHeight();
     nodeMgr.initializeSortable(); // Re-initialize Sortable to include new row
     initializeDragAndResize(); // Re-initialize custom drag and resize for new elements
-    updateFrameInfo(nodeMgr.node, newRow.querySelector(".timeline-handler"));
+    updateFrameInfo(nodeMgr, newRow.querySelector(".timeline-handler"));
 }
 
-function renumberImageRows(node) {
-    const rows = node.htmlElement.querySelectorAll(".timeline-row");
+function renumberImageRows(nodeMgr) {
+    const rows = nodeMgr.htmlElement.querySelectorAll(".timeline-row");
     rows.forEach((row, index) => {
       row.id = `timeline-row-${index + 1}`;
       const textHook = row.querySelector(".image-number");
@@ -26,11 +26,11 @@ function renumberImageRows(node) {
     });
 }
 
-function removeImageRow(node, button) {
+function removeImageRow(nodeMgr, button) {
     const row = button.closest(".timeline-row");
     if (row) {
       row.remove();
-      renumberImageRows(node);
+      renumberImageRows(nodeMgr);
     }
 }
 

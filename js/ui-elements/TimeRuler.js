@@ -1,28 +1,28 @@
 import { SVG_SHOW_CURVES } from "../utils/SVGConstants.js";
 
-function updateFrameInfo(node, handler) {
+function updateFrameInfo(nodeMgr, handler) {
     const timelineContainer = handler.closest(".timeline");
     const totalWidth = timelineContainer.clientWidth;
     const handlerWidth = handler.clientWidth;
     const handlerLeft = handler.offsetLeft;
   
-    const framesPerPixel = node.properties.number_animation_frames / totalWidth;
+    const framesPerPixel = nodeMgr.node.properties.number_animation_frames / totalWidth;
     const startFrame = Math.round(handlerLeft * framesPerPixel);
     const endFrame = Math.round((handlerLeft + handlerWidth) * framesPerPixel);
     const totalFrames = endFrame - startFrame;
   
-    const startSecond = (startFrame / node.properties.frames_per_second).toFixed(2);
-    const endSecond = (endFrame / node.properties.frames_per_second).toFixed(2);
+    const startSecond = (startFrame / nodeMgr.node.properties.frames_per_second).toFixed(2);
+    const endSecond = (endFrame / nodeMgr.node.properties.frames_per_second).toFixed(2);
   
     const frameInfoElement = handler.querySelector('.frame-info');
     const frameInfoInput = handler.querySelector('.frame-info-input');
     const frameLabel = handler.querySelector('.frame-label');
   
     if (frameInfoElement && frameInfoInput && frameLabel) {
-        frameInfoInput.value = node.properties.time_format === 'Seconds' ? `${(totalFrames / node.properties.frames_per_second).toFixed(2)}` : `${totalFrames}`;
-        frameLabel.textContent = node.properties.time_format === 'Seconds' ? ' seconds' : ' frames';
+        frameInfoInput.value = nodeMgr.node.properties.time_format === 'Seconds' ? `${(totalFrames / nodeMgr.node.properties.frames_per_second).toFixed(2)}` : `${totalFrames}`;
+        frameLabel.textContent = nodeMgr.node.properties.time_format === 'Seconds' ? ' seconds' : ' frames';
         
-        if (node.properties.time_format === 'Seconds') {
+        if (nodeMgr.node.properties.time_format === 'Seconds') {
             frameInfoElement.textContent = `From ${startSecond}s to ${endSecond}s`;
         } else {
             frameInfoElement.textContent = `From ${startFrame} to ${endFrame} frames`;
@@ -30,18 +30,18 @@ function updateFrameInfo(node, handler) {
     }
   }
   
-  function updateAllHandlersFrameInfo(node) {
-    const handlers = node.htmlElement.querySelectorAll(".timeline-handler");
+  function updateAllHandlersFrameInfo(nodeMgr) {
+    const handlers = nodeMgr.htmlElement.querySelectorAll(".timeline-handler");
     handlers.forEach(handler => {
-        updateFrameInfo(node, handler);
+        updateFrameInfo(nodeMgr, handler);
     });
   }
 
-function updateTimeRuler(node, timeRuler) {
-    console.log('Updating time ruler with properties:', node.properties);
-    const numberOfFrames = node.properties.number_animation_frames || 96;
-    const framesPerSecond = node.properties.frames_per_second || 12;
-    const timeFormat = node.properties.time_format;
+function updateTimeRuler(nodeMgr, timeRuler) {
+    console.log('Updating time ruler with properties:', nodeMgr.node.properties);
+    const numberOfFrames = nodeMgr.node.properties.number_animation_frames || 96;
+    const framesPerSecond = nodeMgr.node.properties.frames_per_second || 12;
+    const timeFormat = nodeMgr.node.properties.time_format;
   
     // console.log('Time Format:', timeFormat); // Debugging output
   
@@ -77,7 +77,7 @@ function updateTimeRuler(node, timeRuler) {
     }
   }
   
-  function createTimeRuler(node) {
+  function createTimeRuler(nodeMgr) {
     const timeRulerContainer = document.createElement("div");
     timeRulerContainer.className = "time-ruler-container";
   
@@ -96,7 +96,7 @@ function updateTimeRuler(node, timeRuler) {
     timeRuler.className = "time-ruler";
   
     // Initialize the time ruler with current properties
-    updateTimeRuler(node, timeRuler);
+    updateTimeRuler(nodeMgr, timeRuler);
   
     timeRulerContainer.appendChild(timeRuler);
   
