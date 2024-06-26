@@ -11,6 +11,29 @@ export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
+function get_position_style(ctx, widget_width, y, node_height) {
+  const MARGIN = 4;  // the margin around the html element
+
+/* Create a transform that deals with all the scrolling and zooming */
+  const elRect = ctx.canvas.getBoundingClientRect();
+  const transform = new DOMMatrix()
+      .scaleSelf(elRect.width / ctx.canvas.width, elRect.height / ctx.canvas.height)
+      .multiplySelf(ctx.getTransform())
+      .translateSelf(MARGIN, MARGIN + y);
+
+  return {
+      transformOrigin: '0 0',
+      transform: transform,
+      left: `0px`, 
+      top: `0px`,
+      position: "absolute",
+      maxWidth: `${widget_width - MARGIN*2}px`,
+      maxHeight: `${node_height - MARGIN*2}px`,    // we're assuming we have the whole height of the node
+      width: `auto`,
+      height: `auto`,
+  }
+}
+
 export class NodeManager {
     constructor(node, props={}) {
       // Destructuring props with default values
@@ -101,27 +124,29 @@ export class NodeManager {
     }
 
     createImagesContainer() {
-        // const container = document.createElement("div");
-        // container.id = "images-rows-container";
-        // container.className = "timeline-container";
-
         const container = $el("div.timeline-container", { 
           id: "images-rows-container" 
         });
       
         this.timeRulerContainer = createTimeRuler(this);
         container.appendChild(this.timeRulerContainer);
-      
-        /* let domWidget = this.node.addDOMWidget("custom-html", "html", container, {
-          getValue: () => container.innerHTML,
-          setValue: (value) => {
-            container.innerHTML = value;
-          },
-        });
-        */
     
         this.htmlElement = container;
         document.body.appendChild(this.htmlElement);
+    }
+
+    addTimelineWidget() {
+      this.timelineWidget = {
+        type: "HTML",
+        name: "timeline",
+        inputEl: this.htmlElement,
+        draw(ctx, node, widget_width, y, widget_height) {
+          Object.assign(this.inputEl.style, get_position_style(ctx, widget_width, y, node.size[1]));
+        }
+      };
+
+      this.node.addCustomWidget(this.timelineWidget);
+      this.onRemoved = function() { widget.inputEl.remove(); };
     }
 
     handleImageUpload(event) {

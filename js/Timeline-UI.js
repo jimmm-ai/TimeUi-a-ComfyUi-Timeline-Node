@@ -1,5 +1,4 @@
 import { app } from "../../scripts/app.js";
-import { $el } from "../../scripts/ui.js";
 import './utils/Sortable.min.js';
 import { NodeManager, out } from "./NodeManager.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
@@ -63,8 +62,6 @@ const node = {
            * Thus, nodeMgr.node must be reset to match the required context so everything behind the scenes works properly.
           */
           let nodeMgr = new NodeManager(this);
-          out(`\nthis=${Object.keys(this)}\nthis.properties=${Object.keys(this.properties)}`);
-          out(`\nnodeData=${Object.keys(nodeData)}`);
 
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;
@@ -75,6 +72,7 @@ const node = {
           nodeMgr.setupEventListeners();
           nodeMgr.initializeSortable();
           nodeMgr.initResizeListeners();
+          nodeMgr.addTimelineWidget();
 
         }
       }
