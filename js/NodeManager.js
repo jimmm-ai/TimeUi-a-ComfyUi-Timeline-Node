@@ -89,6 +89,16 @@ export class NodeManager {
     get resizable() {return this.node.resizable;}
     set resizable(isResizable) {this.node.resizable = isResizable;}
 
+    onNodeCreated() {
+      this.addWidgets();
+      this.createImagesContainer();
+      this.addTimelineHandlerRow();
+      this.setupEventListeners();
+      this.initializeSortable();
+      this.initResizeListeners();
+      this.addTimelineWidget();
+    }
+
     /** Logical Methods */
     addWidgets() {
       ComfyWidgets.COMBO(this.node, "ipadapter_preset", [["LIGHT - SD1.5 only (low strength)", "STANDARD (medium strength)", "VIT-G (medium strength)", "PLUS (high strength)", "PLUS FACE (portraits)", "FULL FACE - SD1.5 only (portraits stronger)"], { default: "LIGHT - SD1.5 only (low strength)" }]);

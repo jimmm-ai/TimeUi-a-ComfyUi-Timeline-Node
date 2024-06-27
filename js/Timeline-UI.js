@@ -66,13 +66,7 @@ const node = {
           nodeMgr.baseHeight = 260;
           nodeMgr.rowHeight = 100;
 
-          nodeMgr.addWidgets();
-          nodeMgr.createImagesContainer();
-          nodeMgr.addTimelineHandlerRow();
-          nodeMgr.setupEventListeners();
-          nodeMgr.initializeSortable();
-          nodeMgr.initResizeListeners();
-          nodeMgr.addTimelineWidget();
+          nodeMgr.onNodeCreated();
 
         }
       }
