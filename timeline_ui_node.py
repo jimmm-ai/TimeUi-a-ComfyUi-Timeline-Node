@@ -14,58 +14,14 @@ class TimelineUI:
 
     @classmethod
     def INPUT_TYPES(s):
-        # Attempting to collect the presets from IPAdapter Plus but has a default if import fails due to node loading issues
-        presets = [
-            'LIGHT - SD1.5 only (low strength)',
-            'STANDARD (medium strength)',
-            'VIT-G (medium strength)',
-            'PLUS (high strength)',
-            'PLUS FACE (portraits)',
-            'FULL FACE - SD1.5 only (portraits stronger)'
-        ]
 
-        ret_types = {
+        input_types = {
             "required": {
                 "model": ("MODEL", {}),
             },
-            "optional": {
-                "ipadapter_preset": (presets, {
-                    "default": "LIGHT - SD1.5 only (low strength)"
-                }),
-                "video_width": ("INT", {
-                    "default": 512,
-                    "min": 0,
-                    "max": 10000,
-                    "step": 1
-                }),
-                "video_height": ("INT", {
-                    "default": 512,
-                    "min": 0,
-                    "max": 10000,
-                    "step": 1
-                }),
-                "interpolation_mode": (["Linear", "Ease_in", "Ease_out", "Ease_in_out"], {
-                    "default": "Linear"
-                }),
-                "number_animation_frames": ("INT", {
-                    "default": 96,
-                    "min": 8,
-                    "max": 12000,
-                    "step": 12
-                }),
-                "frames_per_second": ("INT", {
-                    "default": 12,
-                    "min": 8,
-                    "max": 60,
-                    "step": 8
-                }),
-                "time_format": (["Frames", "Seconds"], {
-                    "default": "Frames"
-                }),
-            }
         }
 
-        return {}
+        return input_types
 
     RETURN_TYPES = ("MODEL",)
     RETURN_NAMES = ("model",)

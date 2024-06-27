@@ -15,7 +15,10 @@ export const out = (message) => {
 function get_position_style(ctx, widget_width, y, node_height) {
   const MARGIN = 8;  // the margin around the html element
 
-/* Create a transform that deals with all the scrolling and zooming */
+/**
+ * Create a transform that deals with all the scrolling and zooming
+ * This doesn't work as intended, at least not with specific margin px values
+*/
   const elRect = ctx.canvas.getBoundingClientRect();
   const transform = new DOMMatrix()
       .scaleSelf(elRect.width / ctx.canvas.width, elRect.height / ctx.canvas.height)
