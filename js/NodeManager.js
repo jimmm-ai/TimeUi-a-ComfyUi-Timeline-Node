@@ -31,8 +31,8 @@ function get_position_style(ctx, widget_width, y, node_height) {
       left: `${MARGIN}px`, 
       top: `${MARGIN}px`,
       position: "absolute",
-      maxWidth: `${widget_width - MARGIN*2}px`,
-      maxHeight: `${node_height - MARGIN*2}px`,    // we're assuming we have the whole height of the node
+      maxWidth: `${widget_width - MARGIN*4}px`,
+      maxHeight: `${ROWHEIGHT}px`,    // we're assuming we have the whole height of the node
       width: `${widget_width - MARGIN*4}px`,
       height: `${ROWHEIGHT}px`,
   }
