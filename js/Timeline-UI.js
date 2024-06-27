@@ -1,7 +1,6 @@
 import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
 import { NodeManager, out } from "./NodeManager.js";
-import { ComfyWidgets } from "../../scripts/widgets.js";
 
 
 function sendDataToBackend(image_timelines) {
@@ -39,7 +38,6 @@ const node = {
   name: "jimmm.ai.TimelineUI",
   async beforeRegisterNodeDef(nodeType, nodeData, app) {
       if (nodeType.comfyClass === "jimmm.ai.TimelineUI") {
-        nodeType.prototype.addDOMWidget = LiteGraph.LGraphNode.prototype.addDOMWidget;
         nodeType.title = "Timeline UI";
         nodeType.inputs = [
           {
