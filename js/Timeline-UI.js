@@ -54,10 +54,10 @@ const node = {
         nodeType.prototype.onNodeCreated = function () {
           origOnNodeCreated?.apply(this, arguments);
 
-          /** Save the original nodeType context and set nodeMgr.node to the new nodeType context within onNodeCreated
-           * This is importanat because nodeType as context is different inside the onNodeCreated call than within beforeRegisterNodeDef
-           *  and the context for nodeType inside of onNodeCreated is required for addDOMWidget to work properly (called within nodeMgr.createImagesContainer()).
-           * Thus, nodeMgr.node must be reset to match the required context so everything behind the scenes works properly.
+          /**
+           * `this` is the required context of the instanced node to make sure that
+           *   the html is added to the node being created instead of applied to all
+           *   existing nodes.
           */
           let nodeMgr = new NodeManager(this);
 

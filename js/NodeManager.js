@@ -6,13 +6,12 @@ import { $el } from "../../scripts/ui.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 
 let docListenersAdded = false;
-const ROWHEIGHT = 100;
 
 export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
-function get_position_style(ctx, widget_width, y, node_height) {
+function get_position_style(ctx, widget_width, y, node_height, rowHeight) {
   const MARGIN = 8;  // the margin around the html element
 
 /**
@@ -32,9 +31,9 @@ function get_position_style(ctx, widget_width, y, node_height) {
       top: `${MARGIN}px`,
       position: "absolute",
       maxWidth: `${widget_width - MARGIN*4}px`,
-      maxHeight: `${ROWHEIGHT}px`,    // we're assuming we have the whole height of the node
+      maxHeight: `${rowHeight}px`,    // we're assuming we have the whole height of the node
       width: `${widget_width - MARGIN*4}px`,
-      height: `${ROWHEIGHT}px`,
+      height: `${rowHeight}px`,
   }
 }
 
@@ -44,7 +43,7 @@ export class NodeManager {
       const {
           size = [900, 600],
           baseHeight = 260,
-          rowHeight = ROWHEIGHT
+          rowHeight = 100
       } = props;
       
       this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
@@ -150,17 +149,18 @@ export class NodeManager {
     }
 
     addTimelineWidget() {
-      this.timelineWidget = {
+      const rowHeight = this.rowHeight;
+      const timelineWidget = {
         type: "HTML",
         name: "timeline",
         inputEl: this.htmlElement,
         draw(ctx, node, widget_width, y, widget_height) {
-          Object.assign(this.inputEl.style, get_position_style(ctx, widget_width, y, node.size[1]));
+          Object.assign(this.inputEl.style, get_position_style(ctx, widget_width, y, node.size[1]), rowHeight);
         }
       };
 
-      this.node.addCustomWidget(this.timelineWidget);
-      this.onRemoved = function() { widget.inputEl.remove(); };
+      this.node.addCustomWidget(timelineWidget);
+      this.node.onRemoved = function() { timelineWidget.inputEl.remove(); };
     }
 
     handleImageUpload(event) {
