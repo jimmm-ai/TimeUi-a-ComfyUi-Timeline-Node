@@ -1,10 +1,11 @@
-import { createTimeRuler, timeRulerCallback } from "./ui-elements/TimeRuler.js";
+import { createTimeRuler, updateAllHandlersFrameInfo } from "./ui-elements/TimeRuler.js";
 import { addImageRow, renumberImageRows, removeImageRow } from "./ui-elements/TimelineHandler.js";
 import { initializeDragAndResize } from "./utils/EventListeners.js";
 import { app } from "../../scripts/app.js";
 import { $el } from "../../scripts/ui.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 
+// We don't need to add the docListeners more than once, so this flag stops multiple adds
 let docListenersAdded = false;
 
 export const out = (message) => {
@@ -46,12 +47,13 @@ export class NodeManager {
           rowHeight = 100
       } = props;
       
-      this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
+      this.node = node;
       this.node.size = size;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
       this.imageTimelines = {};
 
+      // Setting properties here, required for updating timeline html
       this.node.properties = {
         ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
         video_width: 512,
@@ -59,7 +61,7 @@ export class NodeManager {
         interpolation_mode: "Linear",
         number_animation_frames: 96,
         frames_per_second: 12,
-        time_format: "Frames" // Default value for time_format
+        time_format: "Frames"
       };
 
       this.htmlElement;
@@ -106,13 +108,10 @@ export class NodeManager {
       ComfyWidgets.COMBO(this.node, "interpolation_mode", [["Linear", "Ease_in", "Ease_out", "Ease_in_out"], { default: "Linear" }]);
       ComfyWidgets.FLOAT(this.node, "number_animation_frames", ["INT", { default: 96, min: 1, max: 12000, step: 1 }], app);
       ComfyWidgets.FLOAT(this.node, "frames_per_second", ["INT", { default: 12, min: 8, max: 24, step: 1 }], app);
-    
-      // Time format COMBO widget with the specified structure
-      ComfyWidgets.COMBO(this.node, "time_format", [["Frames", "Seconds"], { default: "Frames" }]);
+      ComfyWidgets.COMBO(this.node, "time_format", [["Frames", "Seconds"], { default: "Frames" }], app);
     
       // Bind onWidgetChange function to widget change events
       this.node.widgets.forEach(widget => {
-        // console.log(`Widget initialized: ${widget.name} with value ${widget.value}`); // Debugging output
         widget.callback = this.onWidgetChange.bind(widget, widget.value);
       });
     }
@@ -122,12 +121,11 @@ export class NodeManager {
       this.node.properties[widget.name] = value;
       console.log('Updated properties:', this.node.properties);
 
-      // Ensure the timeRulerContainer exists and has a time-ruler element
       if (this.timeRulerContainer) {
           const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
           if (timeRuler) {
               this.updateTimeRuler(timeRuler);
-              updateAllHandlersFrameInfo(this); // Update frame info for all handlers
+              updateAllHandlersFrameInfo(this);
           } else {
               console.error("Time ruler element not found!");
           }
@@ -175,6 +173,7 @@ export class NodeManager {
             const uploadContainer = event.target.closest(".image-upload");
             const timelineHandler = event.target.closest(".timeline-handler");
             const rowHTML = event.target.closest(".timeline-row");
+            // This is used for passing the images to the backend
             this.imageTimelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
             uploadContainer.innerHTML = '';
             uploadContainer.appendChild(img);
@@ -217,7 +216,6 @@ export class NodeManager {
     initResizeListeners() {
       if (!docListenersAdded) {
         initializeDragAndResize(this);
-        out("NodeManager.initResizeListeners was run!");
       }
       docListenersAdded = true;
     }
