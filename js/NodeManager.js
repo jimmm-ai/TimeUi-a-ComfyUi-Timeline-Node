@@ -6,13 +6,14 @@ import { $el } from "../../scripts/ui.js";
 import { ComfyWidgets } from "../../scripts/widgets.js";
 
 let docListenersAdded = false;
+const ROWHEIGHT = 100;
 
 export const out = (message) => {
     console.log(`Timeline-UI: ${message}`);
 };
 
 function get_position_style(ctx, widget_width, y, node_height) {
-  const MARGIN = 4;  // the margin around the html element
+  const MARGIN = 8;  // the margin around the html element
 
 /* Create a transform that deals with all the scrolling and zooming */
   const elRect = ctx.canvas.getBoundingClientRect();
@@ -24,13 +25,13 @@ function get_position_style(ctx, widget_width, y, node_height) {
   return {
       transformOrigin: '0 0',
       transform: transform,
-      left: `0px`, 
-      top: `0px`,
+      left: `${MARGIN}px`, 
+      top: `${MARGIN}px`,
       position: "absolute",
       maxWidth: `${widget_width - MARGIN*2}px`,
       maxHeight: `${node_height - MARGIN*2}px`,    // we're assuming we have the whole height of the node
-      width: `auto`,
-      height: `auto`,
+      width: `${widget_width - MARGIN*4}px`,
+      height: `${ROWHEIGHT}px`,
   }
 }
 
@@ -40,7 +41,7 @@ export class NodeManager {
       const {
           size = [900, 600],
           baseHeight = 260,
-          rowHeight = 100
+          rowHeight = ROWHEIGHT
       } = props;
       
       this.node = node;  // this is nodeType from app.registerExtension({async beforeRegisterNodeDef(nodeType, ...) {...}})
