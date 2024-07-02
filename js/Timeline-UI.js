@@ -1,6 +1,6 @@
 import { app } from "../../scripts/app.js";
 import './utils/Sortable.min.js';
-import { NodeManager, out } from "./NodeManager.js";
+import { makeNodeManager, out } from "./managers/NodeManager.js";
 
 
 function sendDataToBackend(image_timelines) {
@@ -59,10 +59,7 @@ const node = {
            *   the html is added to the node being created instead of applied to all
            *   existing nodes.
           */
-          let nodeMgr = new NodeManager(this);
-
-          nodeMgr.baseHeight = 260;
-          nodeMgr.rowHeight = 100;
+          let nodeMgr = makeNodeManager(this);
 
           nodeMgr.onNodeCreated();
 

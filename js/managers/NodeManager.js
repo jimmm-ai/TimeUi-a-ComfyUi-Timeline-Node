@@ -1,9 +1,17 @@
-import { createTimeRuler, updateAllHandlersFrameInfo } from "./ui-elements/TimeRuler.js";
-import { addImageRow, renumberImageRows, removeImageRow } from "./ui-elements/TimelineHandler.js";
-import { initializeDragAndResize } from "./utils/EventListeners.js";
-import { app } from "../../scripts/app.js";
-import { $el } from "../../scripts/ui.js";
-import { ComfyWidgets } from "../../scripts/widgets.js";
+import { createTimeRuler, updateTimeRuler, updateAllHandlersFrameInfo } from "../ui-elements/TimeRuler.js";
+import { addImageRow, renumberImageRows, removeImageRow } from "../ui-elements/TimelineHandler.js";
+import { initializeDragAndResize } from "../utils/EventListeners.js";
+import { ObjectStore } from "./ObjectStore.js";
+import { app } from "../../../scripts/app.js";
+import { $el } from "../../../scripts/ui.js";
+import { ComfyWidgets } from "../../../scripts/widgets.js";
+
+const createUUIDGenerator = () => {
+  let currUUID = 0;
+  return () => currUUID++;
+};
+
+const uuid = createUUIDGenerator();
 
 // We don't need to add the docListeners more than once, so this flag stops multiple adds
 let docListenersAdded = false;
@@ -38,31 +46,51 @@ function get_position_style(ctx, widget_width, y, node_height, rowHeight) {
   }
 }
 
-export class NodeManager {
+/**
+ * This has to be outside the class because it can be called when the NodeManager object no longer exists
+ * Use nodeStorage.get(nodeUID) to get the true instanced node and DO NOT USE this.node because the two are not equal
+ */
+function onWidgetChange(widget, nodeUID) {
+  let realNode = nodeStorage.get(nodeUID)
+  realNode.properties[widget.name] = widget.value;
+  
+  if (realNode.timeRulerContainer) {
+    const timeRuler = realNode.timeRulerContainer.querySelector('.time-ruler');
+    if (timeRuler) {
+        updateTimeRuler(realNode, timeRuler);
+        updateAllHandlersFrameInfo(realNode);
+    } else {
+        console.error("Time ruler element not found!");
+    }
+} else {
+    console.error("Time ruler container not found!");
+}
+}
+
+class NodeManager {
     constructor(node, props={}) {
       // Destructuring props with default values
       const {
-          size = [900, 600],
+          size = [900, 360],
           baseHeight = 260,
           rowHeight = 100
       } = props;
       
+      this.uID = uuid();
       this.node = node;
-      this.node.size = size;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
+      this.node.size = size;
       this.imageTimelines = {};
-
-      // Setting properties here, required for updating timeline html
-      this.node.properties = {
+      this.properties = {
         ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
         video_width: 512,
         video_height: 512,
         interpolation_mode: "Linear",
         number_animation_frames: 96,
         frames_per_second: 12,
-        time_format: "Frames"
-      };
+        time_format: "Frames",
+      }
 
       this.htmlElement;
     }
@@ -75,16 +103,17 @@ export class NodeManager {
 
     get inputs() {return this.node.inputs;}
     set inputs(newInputs) {
-        if (Array.isArray(newInputs)) {
-            this.node.inputs = newInputs.map(input => ({name: input.name, type: input.type, label: input.label}));
-        }
+      if (Array.isArray(newInputs)) {
+        this.node.inputs = newInputs.map(input => ({name: input.name, type: input.type, label: input.label}));
+      }
     }
 
     get size() {return this.node.size;}
     set size(newSize) {
-        if (Array.isArray(newSize)) {
-            this.node.size = newSize;
-        }
+      if (Array.isArray(newSize)) {
+          this.node.size = newSize;
+          this.node.setDirtyCanvas(true, true);
+      }
     }
 
     get resizable() {return this.node.resizable;}
@@ -112,19 +141,24 @@ export class NodeManager {
     
       // Bind onWidgetChange function to widget change events
       this.node.widgets.forEach(widget => {
-        widget.callback = this.onWidgetChange.bind(widget, widget.value);
+        widget.callback = onWidgetChange.bind(this, widget, this.uID);
       });
+
+      for (let a = 0; a < this.node.widgets.length; a++) {
+        console.log(`Equal callback: ${nodeStorage.get(this.uID).node.widgets[a].callback === this.node.widgets[a].callback}`);
+      }
     }
 
-    onWidgetChange(widget, value) {
+    // this will be called when the NodeManager object no longer exists
+    __onWidgetChange(widget, value) {
       console.log(`Widget changed: ${widget.name} = ${value}`);
-      this.node.properties[widget.name] = value;
-      console.log('Updated properties:', this.node.properties);
+      this.properties[widget.name] = value;
+      console.log('Updated properties:', this.properties);
 
       if (this.timeRulerContainer) {
           const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
           if (timeRuler) {
-              this.updateTimeRuler(timeRuler);
+              // this.updateTimeRuler(timeRuler); This doesn't work yet
               updateAllHandlersFrameInfo(this);
           } else {
               console.error("Time ruler element not found!");
@@ -162,24 +196,24 @@ export class NodeManager {
     }
 
     handleImageUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.src = e.target.result;
-            img.className = "uploaded-image";
-    
-            const uploadContainer = event.target.closest(".image-upload");
-            const timelineHandler = event.target.closest(".timeline-handler");
-            const rowHTML = event.target.closest(".timeline-row");
-            // This is used for passing the images to the backend
-            this.imageTimelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
-            uploadContainer.innerHTML = '';
-            uploadContainer.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        }
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.className = "uploaded-image";
+          
+          const uploadContainer = event.target.closest(".image-upload");
+          const timelineHandler = event.target.closest(".timeline-handler");
+          const rowHTML = event.target.closest(".timeline-row");
+          // This is used for passing the images to the backend
+          this.imageTimelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
+          uploadContainer.innerHTML = '';
+          uploadContainer.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
     addTimelineHandlerRow() {
@@ -187,30 +221,31 @@ export class NodeManager {
     }
 
     setupEventListeners() {
-        this.htmlElement.addEventListener("click", (event) => {
-            if (event.target.closest(".add-row")) {
-              addImageRow(this);
-            } else if (event.target.closest(".remove-row")) {
-              removeImageRow(this, event.target);
-            } else if (event.target.closest(".image-input")) {
-              event.target.closest(".image-input").addEventListener("change", (e) => this.handleImageUpload(e));
-            }
-        });
+      this.htmlElement.addEventListener("click", (event) => {
+        if (event.target.closest(".add-row")) {
+          addImageRow(this);
+        } else if (event.target.closest(".remove-row")) {
+          removeImageRow(this, event.target);
+        } else if (event.target.closest(".image-input")) {
+          event.target.closest(".image-input").addEventListener("change", (e) => this.handleImageUpload(e));
+        }
+      });
     }
 
-    updateNodeHeight() {
-        const rowCount = this.htmlElement.querySelectorAll(".timeline-row").length;
-        this.node.size[1] = this.baseHeight + this.rowHeight * rowCount;
+    updateNodeHeight(addingRow=true) {
+      const rowCount = this.htmlElement.querySelectorAll(".timeline-row").length + (addingRow ? 1 : 0);
+      console.log(`row count=${rowCount}`);
+      this.size = [this.size[0], this.baseHeight + this.rowHeight * rowCount];
     }
 
     initializeSortable(animation=150) {
-        Sortable.create(this.htmlElement, {
-          animation,
-          handle: ".rearrange-handle",
-          onEnd: () => {
-            renumberImageRows(this.node);
-          },
-        });
+      Sortable.create(this.htmlElement, {
+        animation,
+        handle: ".rearrange-handle",
+        onEnd: () => {
+          renumberImageRows(this.node);
+        },
+      });
     }
 
     initResizeListeners() {
@@ -219,4 +254,12 @@ export class NodeManager {
       }
       docListenersAdded = true;
     }
+}
+
+let nodeStorage = new ObjectStore();
+
+// I want every NodeManager to be stored in the nodeStorage, so this is the only way to get a node manager in code
+export function makeNodeManager(node, props={}) {
+  const uID = nodeStorage.add(new NodeManager(node, props));
+  return nodeStorage.get(uID);
 }
