@@ -47,18 +47,20 @@ function get_position_style(ctx, widget_width, y, node_height, rowHeight) {
 }
 
 /**
- * This has to be outside the class because it can be called when the NodeManager object no longer exists
- * Use nodeStorage.get(nodeUID) to get the true instanced node and DO NOT USE this.node because the two are not equal
+ * this == nodeStorage.get(nodeUID) only because the object persists within nodeStorage
  */
 function onWidgetChange(widget, nodeUID) {
-  let realNode = nodeStorage.get(nodeUID)
-  realNode.properties[widget.name] = widget.value;
+  let realNode = nodeStorage.get(nodeUID);
+  // realNode.properties[widget.name] = widget.value;
+  this.properties[widget.name] = widget.value;
+
+  console.log(`nodeStorage(${nodeUID}).properties[${widget.name}] ${realNode.properties[widget.name] === this.properties[widget.name] ? 'equals' : 'does not equal'} this.properties[${widget.name}]`);
   
   if (realNode.timeRulerContainer) {
-    const timeRuler = realNode.timeRulerContainer.querySelector('.time-ruler');
+    const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
     if (timeRuler) {
-        updateTimeRuler(realNode, timeRuler);
-        updateAllHandlersFrameInfo(realNode);
+        updateTimeRuler(this, timeRuler);
+        updateAllHandlersFrameInfo(this);
     } else {
         console.error("Time ruler element not found!");
     }
