@@ -4,6 +4,8 @@
 
 The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea. I am still looking for developers to contribute to the project. I just pushed a very early code for the final node.
 
+[Development Log](https://github.com/jimmm-ai/TimeUi-a-ComfyUi-Timeline-Node/wiki/Development-Log#06-june-2024--buildlog-1)
+
 ## 07 JUNE 2024 : BuildLog #2
 
 ### Updates
