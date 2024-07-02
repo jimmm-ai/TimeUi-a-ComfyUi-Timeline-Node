@@ -4,81 +4,9 @@
 
 The project is still in its early stages and there is no usable node at the moment. The only code available was made in HTML, JS, and CSS for the purpose of the presentation video of the project idea. I am still looking for developers to contribute to the project. I just pushed a very early code for the final node.
 
-[Development Log](https://github.com/jimmm-ai/TimeUi-a-ComfyUi-Timeline-Node/wiki/Development-Log#06-june-2024--buildlog-1)
+## [Development Log](https://github.com/jimmm-ai/TimeUi-a-ComfyUi-Timeline-Node/wiki/Development-Log)
 
-## 07 JUNE 2024 : BuildLog #2
-
-### Updates
-Today's focus was on refining the timeline node system, enhancing the interface, and implementing new functionalities.
-
-### Changes Made and Steps Completed
-1. **Reorder Functionality:**
-   - Integrated the `Sortable.min.js` library for enhanced drag-and-drop capabilities to reorder image rows.
-   - Removed the dependency on `draggablelist.js`.
-
-2. **Interface Improvements:**
-   - Updated the CSS for a more polished look and better usability.
-   - Added SVG icons for adding/removing rows, timeframes, and image uploads for a more intuitive interface.
-
-3. **Enhanced Node Features:**
-   - Improved the node structure by implementing customizable widgets using `ComfyWidgets`.
-   - Created a more modular and scalable approach to handling image rows and timelines.
-
-4. **Resizable and Draggable Handlers:**
-   - Implemented custom handlers for resizing and dragging timeline elements.
-   - Added event listeners for better interaction handling.
-
-5. **Image Upload Handling:**
-   - Improved the image upload process to ensure uploaded images display correctly within their containers.
-
-### Needs and Future Development
-1. **Further Refine Reorder Functionality:**
-   - Continue testing and refining the reordering functionality to ensure it handles all edge cases smoothly.
-
-2. **Dynamic Node Height Adjustment:**
-   - Implement a solution for dynamically adjusting the node's height based on the content to prevent overflow issues.
-
-3. **Code Multiple Timeline Handlers:**
-   - Develop a way to add multiple timeline handlers within the same timeline, allowing for more complex animations and interactions.
-
-4. **General Development Assistance:**
-   - Seeking developers with experience in ComfyUI node development to collaborate on this project.
-   - Particularly need help with JavaScript and Python integration for a fully functional node system.
-
-5. **Feedback and Contributions:**
-   - Looking for feedback on the current implementation and suggestions for improvement.
-   - Open to contributions from the community to enhance the functionality and usability of the timeline node system.
-
-
-## 06 JUNE 2024 : BuildLog #1
-
-### Steps Completed
-
-1. **Implemented the Widget on Top of the Node**:
-   - Developed the initial interface for the timeline node system.
-   - Implemented basic functionality to add, remove, and rearrange image rows in the timeline. I used the "draggablelist.js" library already in the ComfyUI core.
-   - Added HTML, CSS, and JS code to create the presentation video demonstrating the project idea.
-
-2. **Began Development of the Timeline**:
-   - Started the implementation of the timeline feature.
-   - Currently, the timeline does not function as intended; users can interact with the interface but image uploads do not update their positions within the list of image rows. To preview the image after upload, I used the "imagePreview.js" library already in the ComfyUI core.
-
-### Needs and Future Development
-
-1. **Image Position Update**:
-   - Need to implement functionality to update the position of images within the list of image rows when they are rearranged. I used the "draggablelist.js" library already in the ComfyUI core.
-
-2. **Dynamic Node Height**:
-   - Develop the node to dynamically adjust its height based on the content. Currently, adding too many rows causes them to overflow outside the node. Need to find a solution that adapts the height of the node to its content.
-
-3. **General Development Assistance**:
-   - Seeking developers with experience in ComfyUI node development to collaborate on this project.
-   - Particularly need help with JavaScript and Python integration for a fully functional node system.
-
-4. **Feedback and Contributions**:
-   - Looking for feedback on the current implementation and suggestions for improvement.
-   - Open to contributions from the community to enhance the functionality and usability of the timeline node system.
-
+Track and follow how the project evolves from an idea to a fully functional node for ComfyUI!
 
 ## Introduction
 
