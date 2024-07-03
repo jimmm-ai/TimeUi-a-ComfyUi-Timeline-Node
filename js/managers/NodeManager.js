@@ -77,7 +77,8 @@ class NodeManager {
       const {
           size = [900, 360],
           baseHeight = 260,
-          rowHeight = 100
+          rowHeight = 100,
+          serialize_widgets = true,
       } = props;
       
       this.node = node;
@@ -85,6 +86,7 @@ class NodeManager {
       this.node.jimmmm_ai_node_uID = this.uID;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
+      this.node.serialize_widgets = serialize_widgets;
       this.node.size = size;
       this.properties = {
         ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
@@ -170,6 +172,9 @@ class NodeManager {
         inputEl: this.htmlElement,
         draw(ctx, node, widget_width, y, widget_height) {
           Object.assign(this.inputEl.style, get_position_style(ctx, widget_width, y, node.size[1]), rowHeight);
+        },
+        async serializeValue(nodeId, widgetIndex) {
+          return this.properties.imageTimelineInfo;
         }
       };
 
