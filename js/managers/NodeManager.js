@@ -80,12 +80,12 @@ class NodeManager {
           rowHeight = 100
       } = props;
       
-      this.uID = uuid();
       this.node = node;
+      this.uID = uuid();
+      this.node.jimmmm_ai_node_uID = this.uID;
       this.baseHeight = baseHeight;
       this.rowHeight = rowHeight;
       this.node.size = size;
-      this.imageTimelines = {};
       this.properties = {
         ipadapter_preset: "LIGHT - SD1.5 only (low strength)",
         video_width: 512,
@@ -94,6 +94,7 @@ class NodeManager {
         number_animation_frames: 96,
         frames_per_second: 12,
         time_format: "Frames",
+        imageTimelineInfo: {},
       }
 
       this.htmlElement;
@@ -147,29 +148,6 @@ class NodeManager {
       this.node.widgets.forEach(widget => {
         widget.callback = onWidgetChange.bind(this, widget, this.uID);
       });
-
-      for (let a = 0; a < this.node.widgets.length; a++) {
-        console.log(`Equal callback: ${nodeStorage.get(this.uID).node.widgets[a].callback === this.node.widgets[a].callback}`);
-      }
-    }
-
-    // this will be called when the NodeManager object no longer exists
-    __onWidgetChange(widget, value) {
-      console.log(`Widget changed: ${widget.name} = ${value}`);
-      this.properties[widget.name] = value;
-      console.log('Updated properties:', this.properties);
-
-      if (this.timeRulerContainer) {
-          const timeRuler = this.timeRulerContainer.querySelector('.time-ruler');
-          if (timeRuler) {
-              // this.updateTimeRuler(timeRuler); This doesn't work yet
-              updateAllHandlersFrameInfo(this);
-          } else {
-              console.error("Time ruler element not found!");
-          }
-      } else {
-          console.error("Time ruler container not found!");
-      }
     }
 
     createImagesContainer() {
@@ -212,7 +190,7 @@ class NodeManager {
           const timelineHandler = event.target.closest(".timeline-handler");
           const rowHTML = event.target.closest(".timeline-row");
           // This is used for passing the images to the backend
-          this.imageTimelines[rowHTML.id] = {imgSrc: img.src, timelineHandler};
+          this.properties.imageTimelineInfo[rowHTML.id] = {imgSrc: img.src, timelineHandler};
           uploadContainer.innerHTML = '';
           uploadContainer.appendChild(img);
         };

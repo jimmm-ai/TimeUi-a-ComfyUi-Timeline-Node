@@ -1,6 +1,4 @@
-import sys
-import logging
-
+from .common_imports import sys, logging
 
 class Dummy:
     def __init__(self, module_name):
@@ -9,12 +7,19 @@ class Dummy:
 
 def get_dependency(module_name, items):
     module_items = []
-    if module_name in sys.modules:
-        module = sys.modules[module_name]
-        for item in items:
-            if hasattr(module, item):
-                module_items.append(getattr(module, item))
-            else: module_items.append(Dummy(f"{module.__name__}.{item}"))
+
+    for item in items:
+        failed = False
+        try:
+            module_items.append(getattr(sys.modules[module_name], item))
+        except KeyError:
+            logging.error(f"TimeUI.dependency_loader KeyError: Couldn't find module {module_name} in sys")
+            failed = True
+        except AttributeError:
+            logging.error(f"TimeUI.dependency_loader AttributeError: {item} not in {module_name}")
+            failed = True
+
+        if failed: module_items.append(Dummy(f"{module_name}.{item}"))
 
     return module_items
 

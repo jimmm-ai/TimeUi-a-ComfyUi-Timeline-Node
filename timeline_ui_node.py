@@ -1,9 +1,9 @@
 from .dependency_loader import load_dependencies
 
 
-node_dependencies = {
-    "ComfyUI_IPAdapter_plus": ["IPAdapterAdvanced", "IPAdapterUnifiedLoader"],
-    "ComfyUI-KJNodes": ["CreateFadeMaskAdvanced"],
+node_dependencies = {  # Must include path as period '.' delimited
+    "ComfyUI_IPAdapter_plus.IPAdapterPlus": ["IPAdapterAdvanced", "IPAdapterUnifiedLoader"],
+    "ComfyUI-KJNodes.nodes.mask_nodes": ["CreateFadeMaskAdvanced"],
 }
 
 
@@ -29,18 +29,16 @@ class TimelineUI:
     FUNCTION = "handle_timeline"
     CATEGORY = "anim_timeline"
 
-    def handle_timeline(self, model=None, ipadapter_preset: str="", video_width: int=0, video_height: int=0, interpolation_mode: str="", number_animation_frames: int=0, frames_per_second: int=0, time_format: str=""):
+    def handle_timeline(self, model=None, **kwargs):
         """ Handle lack of required dependencies here because all modules have to be imported by comfyui before finding them """
         dependencies = load_dependencies(node_dependencies, location="handle_timeline")
         if dependencies is None:
+            print(f"Dependencies returned none, please see console for additional information related to the 'TimeUI-node'\nkwargs={kwargs}")
             return None
 
         IPAdapterAdvanced, _, CreateFadeMaskAdvanced = dependencies
 
-        return {
-            "ui": {},
-            "result": (model,)
-        }
+        return (model,)
 
     def IS_CHANGED(id):
         return float("NaN")
