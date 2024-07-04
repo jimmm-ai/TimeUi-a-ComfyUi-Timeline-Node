@@ -1,6 +1,5 @@
 from .timeline_ui_node import TimelineUI
-import sys
-import os
+from .common_imports import sys, os
 
 
 sys.path.insert(0,os.path.dirname(os.path.realpath(__file__)))
